@@ -379,7 +379,8 @@ function DynamicField({ field, lang, allLangs, getValue, setValue }) {
           </span>
         )}
       </div>
-      <FieldInput field={field} value={getValue(effectiveLang)} onChange={(v) => setValue(effectiveLang, v)} />
+      {/* key forces remount when language changes — prevents TipTap/stateful fields from showing stale lang content */}
+      <FieldInput key={`${field.key}-${effectiveLang}`} field={field} value={getValue(effectiveLang)} onChange={(v) => setValue(effectiveLang, v)} />
     </div>
   );
 }
@@ -470,8 +471,6 @@ function FieldInput({ field, value, onChange }) {
    TipTap Rich Text Field
 ───────────────────────────────────────────────────────────────── */
 function RichTextField({ value, onChange, placeholder }) {
-  const initialised = useRef(false);
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -482,15 +481,6 @@ function RichTextField({ value, onChange, placeholder }) {
     editorProps: { attributes: { class: "tiptap-editor focus:outline-none min-h-[180px] px-4 py-3 text-sm" } },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
-
-  // Sync external value only on first load (e.g. when editing existing content)
-  useEffect(() => {
-    if (!editor || initialised.current) return;
-    if (value && value !== "<p></p>") {
-      editor.commands.setContent(value, false);
-      initialised.current = true;
-    }
-  }, [editor, value]);
 
   function addLink() {
     const url = window.prompt("URL:");

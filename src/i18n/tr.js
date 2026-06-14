@@ -97,6 +97,15 @@ const tr = {
       noSchemaModel:"Sağ panelden bir sayfa modeli seçin",
       noSchemaHint: "Form otomatik oluşacak",
       emptySchema:  "Bu modelin şeması boş",
+      preview:      "Önizle",
+      modelLocked:  "Düzenleme modunda model değiştirilemez",
+      repeatable:   "tekrarlı",
+      item:         "Öğe",
+      noItems:      "Henüz öğe yok.",
+      selectMedia:  "Medyadan Seç",
+      files:        "dosya",
+      linkLabel:    "Buton metni",
+      openInNewTab: "Yeni sekmede aç",
     },
     // Page Models
     pageModels: {

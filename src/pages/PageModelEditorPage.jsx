@@ -38,8 +38,13 @@ function typeInfo(type) {
   return FIELD_TYPES.find((t) => t.value === type) ?? FIELD_TYPES[0];
 }
 
+const TR_MAP = { ş:"s",ğ:"g",ı:"i",ç:"c",ö:"o",ü:"u",Ş:"S",Ğ:"G",İ:"I",Ç:"C",Ö:"O",Ü:"U" };
 function slugify(str) {
-  return str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  return str
+    .split("").map((c) => TR_MAP[c] ?? c).join("")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 }
 function newField() {
   return { key: "", label: "", type: "text", translatable: false, required: false };

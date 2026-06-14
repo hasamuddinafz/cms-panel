@@ -13,6 +13,8 @@
 .tiptap-editor em { font-style: italic; }
 .tiptap-editor s { text-decoration: line-through; }
 .tiptap-editor hr { border: none; border-top: 1px solid hsl(var(--border)); margin: 1rem 0; }
+.tiptap-editor a { color: hsl(var(--primary)); text-decoration: underline; }
+.tiptap-editor blockquote { border-left: 3px solid hsl(var(--border)); padding-left: 1rem; color: hsl(var(--muted-foreground)); margin: 0.75rem 0; }
 .tiptap-editor p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

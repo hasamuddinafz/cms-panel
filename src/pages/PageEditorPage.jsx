@@ -1,8 +1,17 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Save, CheckCircle, Plus, X, ChevronDown, ChevronUp, GripVertical, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft, Save, CheckCircle, Plus, X, ChevronDown, ChevronUp,
+  GripVertical, ExternalLink, Upload, Image as ImageIcon, Search,
+  Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Heading3,
+  Minus, Undo, Redo, Link as LinkIcon, AlignLeft,
+} from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TipTapLink from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import PanelHelmet from "../components/layout/PanelHelmet";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -17,23 +26,27 @@ import {
 import { useGetPageModelListQuery, useGetPageModelByIdQuery } from "../features/pageModels/pageModelsApi";
 import { useGetLanguagesQuery } from "../features/languages/languagesApi";
 import { useGetSettingsQuery } from "../features/settings/settingsApi";
+import { useGetFileListQuery, useUploadFileMutation } from "../features/media/mediaApi";
 
+/* ─────────────────────────────────────────────────────────────────
+   Page Editor
+───────────────────────────────────────────────────────────────── */
 export default function PageEditorPage() {
   const { t } = useTranslation();
-  const { id } = useParams();               // edit mode: /pages/edit/:id
-  const [searchParams] = useSearchParams(); // create mode: /pages/new?modelId=xxx
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isEdit = !!id;
 
-  const { data: existing }   = useGetPageInstanceByIdQuery(id, { skip: !id });
-  const { data: modelList }  = useGetPageModelListQuery({ page: 1, pageSize: 100 });
-  const { data: langs = [] } = useGetLanguagesQuery();
-  const { data: appSettings } = useGetSettingsQuery();
+  const { data: existing }     = useGetPageInstanceByIdQuery(id, { skip: !id });
+  const { data: modelList }    = useGetPageModelListQuery({ page: 1, pageSize: 100 });
+  const { data: langs = [] }   = useGetLanguagesQuery();
+  const { data: appSettings }  = useGetSettingsQuery();
 
   const [selectedModelId, setSelectedModelId] = useState(searchParams.get("modelId") ?? "");
-  const [slug, setSlug]     = useState("");
+  const [slug,    setSlug]    = useState("");
   const [content, setContent] = useState({});
-  const [seo, setSeo]         = useState({});
+  const [seo,     setSeo]     = useState({});
 
   const { data: selectedModel } = useGetPageModelByIdQuery(selectedModelId, { skip: !selectedModelId });
 
@@ -41,7 +54,6 @@ export default function PageEditorPage() {
   const defaultLang = langs.find((l) => l.isDefault)?.code ?? activeLangs[0]?.code ?? "tr";
   const [activeLang, setActiveLang] = useState(defaultLang);
 
-  // Populate when editing
   useEffect(() => {
     if (!existing) return;
     setSelectedModelId(existing.pageModelId ?? "");
@@ -75,8 +87,8 @@ export default function PageEditorPage() {
   const getFieldValue    = (lang, sk, fk) => content[lang]?.[sk]?.[fk] ?? "";
   const getRepeaterValue = (lang, sk)     => Array.isArray(content[lang]?.[sk]) ? content[lang][sk] : [];
 
-  const [createInstance, { isLoading: creating }] = useCreatePageInstanceMutation();
-  const [updateInstance, { isLoading: updating }] = useUpdatePageInstanceMutation();
+  const [createInstance, { isLoading: creating }]  = useCreatePageInstanceMutation();
+  const [updateInstance, { isLoading: updating }]  = useUpdatePageInstanceMutation();
   const [publishPage,    { isLoading: publishing }] = usePublishPageMutation();
   const isBusy = creating || updating || publishing;
 
@@ -90,21 +102,18 @@ export default function PageEditorPage() {
 
   function handlePreview() {
     if (!slug.trim()) return;
-    const base = siteBaseUrl || window.location.origin;
-    window.open(`${base}/${slug.trim()}`, "_blank", "noopener,noreferrer");
+    window.open(`${siteBaseUrl || window.location.origin}/${slug.trim()}`, "_blank", "noopener,noreferrer");
   }
 
   async function save(andPublish = false) {
     if (!selectedModelId) { toast.error(t("pages.selectModelRequired")); return; }
     if (!slug.trim())     { toast.error(t("pages.slugRequired")); return; }
-
     const body = {
       pageModelId: selectedModelId,
       slug: slug.trim(),
       contentJson: JSON.stringify(content),
       seoMetaJson: JSON.stringify(seo),
     };
-
     try {
       let savedId = id;
       if (isEdit) {
@@ -134,73 +143,64 @@ export default function PageEditorPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/pages")}
-            className="w-9 h-9 rounded-xl border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
+          <button onClick={() => navigate("/pages")}
+            className="w-9 h-9 rounded-xl border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
             <ArrowLeft size={16} />
           </button>
           <div>
             <h1 className="text-xl font-bold">{pageTitle}</h1>
             {selectedModel && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                Model: <span className="font-medium text-foreground">{selectedModel.name}</span>
+                {t("pages.model")}: <span className="font-medium text-foreground">{selectedModel.name}</span>
               </p>
             )}
           </div>
         </div>
         <div className="flex gap-2">
           {isEdit && slug && (
-            <Button variant="ghost" size="sm" className="gap-1.5 h-9 text-muted-foreground" onClick={handlePreview} title="Ön izleme (yeni sekmede açılır)">
-              <ExternalLink size={14} /> Önizle
+            <Button variant="ghost" size="sm" className="gap-1.5 h-9 text-muted-foreground" onClick={handlePreview}>
+              <ExternalLink size={14} /> {t("pages.preview", "Önizle")}
             </Button>
           )}
           <Button variant="outline" size="sm" className="gap-1.5 h-9" onClick={() => save(false)} disabled={isBusy}>
-            <Save size={14} /> Taslak Kaydet
+            <Save size={14} /> {t("pages.saveDraft")}
           </Button>
           <Button size="sm" className="gap-1.5 h-9 px-4" onClick={() => save(true)} disabled={isBusy}>
-            <CheckCircle size={14} /> Kaydet & Yayınla
+            <CheckCircle size={14} /> {t("pages.savePublish")}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-[1fr_280px] gap-6 items-start">
-        {/* ── Sol: İçerik alanları ── */}
+        {/* Left: content */}
         <div className="space-y-4">
-          {/* Şema yoksa boş durum */}
           {!selectedModelId && (
             <div className="rounded-2xl border-2 border-dashed py-20 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3">
-                <ChevronDown size={22} className="text-muted-foreground" />
-              </div>
-              <p className="text-sm font-medium text-muted-foreground">Sağ panelden bir sayfa modeli seçin</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Form otomatik oluşacak</p>
+              <ChevronDown size={22} className="text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">{t("pages.noSchemaModel")}</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">{t("pages.noSchemaHint")}</p>
             </div>
           )}
 
           {selectedModelId && schema.sections?.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed py-14 text-center">
-              <p className="text-sm font-medium text-muted-foreground">Bu modelin şeması boş</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Sayfa Modelleri ekranından alan ekleyin</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("pages.emptySchema")}</p>
             </div>
           )}
 
           {selectedModelId && schema.sections?.length > 0 && (
             <>
-              {/* Dil sekmeleri */}
+              {/* Language tabs — shown when 2+ active languages */}
               {activeLangs.length > 1 && (
                 <div className="flex gap-1 border-b mb-2">
                   {activeLangs.map((l) => (
-                    <button
-                      key={l.code} type="button"
-                      onClick={() => setActiveLang(l.code)}
+                    <button key={l.code} type="button" onClick={() => setActiveLang(l.code)}
                       className={cn(
                         "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
                         activeLang === l.code
                           ? "border-primary text-primary"
                           : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
+                      )}>
                       {l.flagIcon} {l.name}
                     </button>
                   ))}
@@ -223,43 +223,39 @@ export default function PageEditorPage() {
           )}
         </div>
 
-        {/* ── Sağ: Ayarlar paneli ── */}
+        {/* Right: settings */}
         <div className="space-y-3 sticky top-4">
           <div className="rounded-2xl border bg-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Sayfa Ayarları</h3>
+            <h3 className="text-sm font-semibold">{t("pages.pageSettings")}</h3>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Sayfa Modeli *</Label>
+              <Label className="text-xs font-medium">{t("pages.pageModel")} *</Label>
               <select
                 className="w-full border rounded-xl pl-3 pr-8 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-60"
                 value={selectedModelId}
                 onChange={(e) => { setSelectedModelId(e.target.value); setContent({}); }}
-                disabled={isEdit}
-              >
-                <option value="">— Model seçin —</option>
+                disabled={isEdit}>
+                <option value="">{t("pages.selectModel")}</option>
                 {modelList?.items?.map((m) => (
                   <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
               </select>
-              {isEdit && (
-                <p className="text-[11px] text-muted-foreground">Düzenleme modunda model değiştirilemez</p>
-              )}
+              {isEdit && <p className="text-[11px] text-muted-foreground">{t("pages.modelLocked", "Düzenleme modunda model değiştirilemez")}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Slug *</Label>
+              <Label className="text-xs font-medium">{t("pages.slug")} *</Label>
               <Input
-                placeholder="örn. hakkimizda"
+                placeholder="ornek-slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
               />
-              <p className="text-[11px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-2 py-1 mt-1">
-                /pages/<span className="text-foreground">{slug || "..."}</span>
+              <p className="text-[11px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-2 py-1">
+                /{slug || "..."}
               </p>
             </div>
           </div>
 
-          {/* SEO */}
           <SeoBlock lang={activeLang} seo={seo} setSeo={setSeo} />
         </div>
       </div>
@@ -267,30 +263,27 @@ export default function PageEditorPage() {
   );
 }
 
-/* ─── Section Block ─── */
+/* ─────────────────────────────────────────────────────────────────
+   Section Block
+───────────────────────────────────────────────────────────────── */
 function SectionBlock({ section, lang, allLangs, getFieldValue, setFieldValue, getRepeaterValue, setRepeaterValue }) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="rounded-2xl border bg-card overflow-hidden shadow-sm">
-      <button
-        type="button"
-        onClick={() => setCollapsed((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-muted/20 transition-colors"
-      >
+      <button type="button" onClick={() => setCollapsed((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-muted/20 transition-colors">
         <div className="flex items-center gap-2.5">
           <div className="w-1.5 h-5 rounded-full bg-primary/40" />
           <span className="text-sm font-semibold">{section.label ?? section.key}</span>
           {section.repeatable && (
             <span className="text-[10px] bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full px-2 py-0.5">
-              tekrarlı
+              {t("pages.repeatable", "tekrarlı")}
             </span>
           )}
         </div>
-        {collapsed
-          ? <ChevronDown size={15} className="text-muted-foreground" />
-          : <ChevronUp size={15} className="text-muted-foreground" />
-        }
+        {collapsed ? <ChevronDown size={15} className="text-muted-foreground" /> : <ChevronUp size={15} className="text-muted-foreground" />}
       </button>
 
       {!collapsed && (
@@ -320,8 +313,11 @@ function SectionBlock({ section, lang, allLangs, getFieldValue, setFieldValue, g
   );
 }
 
-/* ─── Repeater ─── */
+/* ─────────────────────────────────────────────────────────────────
+   Repeater
+───────────────────────────────────────────────────────────────── */
 function RepeaterField({ section, lang, items, onChange }) {
+  const { t } = useTranslation();
   function addItem() {
     const blank = {};
     section.fields?.forEach((f) => { blank[f.key] = f.type === "boolean" ? false : ""; });
@@ -332,14 +328,14 @@ function RepeaterField({ section, lang, items, onChange }) {
     <div className="space-y-3 pt-2">
       {items.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg">
-          Henüz öğe yok.
+          {t("pages.noItems", "Henüz öğe yok.")}
         </p>
       )}
       {items.map((item, idx) => (
         <div key={idx} className="border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/20">
             <GripVertical size={13} className="text-muted-foreground shrink-0" />
-            <span className="text-xs font-semibold text-muted-foreground flex-1">Öğe {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground flex-1">{t("pages.item", "Öğe")} {idx + 1}</span>
             <button type="button" onClick={() => onChange(items.filter((_, i) => i !== idx))}
               className="text-muted-foreground hover:text-destructive transition-colors">
               <X size={13} />
@@ -361,14 +357,17 @@ function RepeaterField({ section, lang, items, onChange }) {
         </div>
       ))}
       <Button type="button" variant="outline" size="sm" className="gap-1.5 w-full" onClick={addItem}>
-        <Plus size={13} /> Öğe Ekle
+        <Plus size={13} /> {t("pages.addItem")}
       </Button>
     </div>
   );
 }
 
-/* ─── Dynamic Field (translatable-aware) ─── */
+/* ─────────────────────────────────────────────────────────────────
+   Dynamic Field (translatable-aware)
+───────────────────────────────────────────────────────────────── */
 function DynamicField({ field, lang, allLangs, getValue, setValue }) {
+  const { t } = useTranslation();
   const effectiveLang = field.translatable ? lang : (allLangs[0] ?? "tr");
   return (
     <div className="space-y-1.5">
@@ -376,7 +375,7 @@ function DynamicField({ field, lang, allLangs, getValue, setValue }) {
         <Label>{field.label ?? field.key}{field.required && <span className="text-destructive ml-0.5">*</span>}</Label>
         {field.translatable && (
           <span className="text-[10px] bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded px-1.5 py-0.5">
-            çevirilebilir
+            {t("pages.translatable")}
           </span>
         )}
       </div>
@@ -385,7 +384,9 @@ function DynamicField({ field, lang, allLangs, getValue, setValue }) {
   );
 }
 
-/* ─── Simple Field (repeater rows) ─── */
+/* ─────────────────────────────────────────────────────────────────
+   Simple Field (inside repeater rows)
+───────────────────────────────────────────────────────────────── */
 function SimpleField({ field, value, onChange }) {
   return (
     <div className="space-y-1">
@@ -395,23 +396,28 @@ function SimpleField({ field, value, onChange }) {
   );
 }
 
-/* ─── Field Input Renderer ─── */
+/* ─────────────────────────────────────────────────────────────────
+   Field Input Renderer
+───────────────────────────────────────────────────────────────── */
 function FieldInput({ field, value, onChange }) {
+  const { t } = useTranslation();
+  const ph = field.label ?? field.key;
+
   switch (field.type) {
     case "text":
-      return <Input placeholder={`${field.label ?? field.key} girin`} value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} />;
+      return <Input placeholder={ph} value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} />;
 
     case "textarea":
       return (
         <textarea
           className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-          rows={4} placeholder={`${field.label ?? field.key} girin`}
+          rows={4} placeholder={ph}
           value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required}
         />
       );
 
     case "richtext":
-      return <RichTextField value={value ?? ""} onChange={onChange} placeholder={`${field.label ?? field.key} girin`} />;
+      return <RichTextField value={value ?? ""} onChange={onChange} placeholder={ph} />;
 
     case "number":
       return <Input type="number" placeholder="0" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} />;
@@ -420,7 +426,7 @@ function FieldInput({ field, value, onChange }) {
       return (
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} className="w-4 h-4 rounded" />
-          <span className="text-sm text-muted-foreground">{value ? "Açık" : "Kapalı"}</span>
+          <span className="text-sm text-muted-foreground">{value ? t("common.active") : t("common.passive")}</span>
         </label>
       );
 
@@ -428,7 +434,7 @@ function FieldInput({ field, value, onChange }) {
       return (
         <select className="w-full border rounded-md pl-3 pr-8 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
           value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required}>
-          <option value="">— Seçin —</option>
+          <option value="">—</option>
           {field.options?.map((opt) => (
             <option key={opt.value ?? opt} value={opt.value ?? opt}>{opt.label ?? opt}</option>
           ))}
@@ -450,65 +456,233 @@ function FieldInput({ field, value, onChange }) {
       return <LinkField value={value} onChange={onChange} />;
 
     case "icon":
-      return <Input placeholder="örn. Star, Home, ArrowRight" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />;
+      return <Input placeholder="Star, Home, ArrowRight…" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />;
 
     case "asset":
-      return (
-        <div className="flex items-center gap-2">
-          <Input placeholder="/uploads/images/dosya.jpg" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
-          {value && <button type="button" onClick={() => onChange("")} className="text-muted-foreground hover:text-destructive shrink-0"><X size={14} /></button>}
-        </div>
-      );
+      return <AssetField value={value ?? ""} onChange={onChange} />;
 
     default:
-      return <Input placeholder={`${field.label ?? field.key} girin`} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />;
+      return <Input placeholder={ph} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />;
   }
 }
 
-/* ─── Rich Text ─── */
+/* ─────────────────────────────────────────────────────────────────
+   TipTap Rich Text Field
+───────────────────────────────────────────────────────────────── */
 function RichTextField({ value, onChange, placeholder }) {
+  const initialised = useRef(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TipTapLink.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer" } }),
+      Placeholder.configure({ placeholder }),
+    ],
+    content: value || "",
+    editorProps: { attributes: { class: "tiptap-editor focus:outline-none min-h-[180px] px-4 py-3 text-sm" } },
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+  });
+
+  // Sync external value only on first load (e.g. when editing existing content)
+  useEffect(() => {
+    if (!editor || initialised.current) return;
+    if (value && value !== "<p></p>") {
+      editor.commands.setContent(value, false);
+      initialised.current = true;
+    }
+  }, [editor, value]);
+
+  function addLink() {
+    const url = window.prompt("URL:");
+    if (!url) return;
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }
+
+  if (!editor) return null;
+
   return (
     <div className="border rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-primary">
-      <div className="flex flex-wrap gap-1 px-2 py-1.5 border-b bg-muted/30">
-        {[
-          { label: "B", title: "Kalın", cmd: "bold" },
-          { label: "I", title: "İtalik", cmd: "italic" },
-          { label: "U", title: "Altı çizili", cmd: "underline" },
-        ].map(({ label, title, cmd }) => (
-          <button key={cmd} type="button" title={title}
-            className="w-6 h-6 text-xs font-bold rounded hover:bg-muted flex items-center justify-center"
-            onMouseDown={(e) => { e.preventDefault(); document.execCommand(cmd); }}>
-            {label}
-          </button>
-        ))}
-        <div className="w-px bg-border mx-1" />
-        {[["H2","H2"],["H3","H3"],["P","P"]].map(([label, val]) => (
-          <button key={val} type="button"
-            className="px-1.5 h-6 text-xs rounded hover:bg-muted flex items-center justify-center"
-            onMouseDown={(e) => { e.preventDefault(); document.execCommand("formatBlock", false, val); }}>
-            {label}
-          </button>
-        ))}
-        <div className="w-px bg-border mx-1" />
-        <button type="button"
-          className="px-1.5 h-6 text-xs rounded hover:bg-muted flex items-center justify-center"
-          onMouseDown={(e) => { e.preventDefault(); document.execCommand("insertUnorderedList"); }}>
-          • Liste
-        </button>
+      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b bg-muted/30">
+        <TBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold"><Bold size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italic"><Italic size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="Strike"><Strikethrough size={13} /></TBtn>
+        <div className="w-px h-4 bg-border mx-1" />
+        <TBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })} title="H2"><Heading2 size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })} title="H3"><Heading3 size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive("paragraph")} title="Paragraph"><AlignLeft size={13} /></TBtn>
+        <div className="w-px h-4 bg-border mx-1" />
+        <TBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Bullet list"><List size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Ordered list"><ListOrdered size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Divider"><Minus size={13} /></TBtn>
+        <div className="w-px h-4 bg-border mx-1" />
+        <TBtn onClick={addLink} active={editor.isActive("link")} title="Link"><LinkIcon size={13} /></TBtn>
+        {editor.isActive("link") && (
+          <TBtn onClick={() => editor.chain().focus().unsetLink().run()} active={false} title="Remove link">
+            <span className="text-[10px] font-semibold">unlink</span>
+          </TBtn>
+        )}
+        <div className="flex-1" />
+        <TBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="Undo"><Undo size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="Redo"><Redo size={13} /></TBtn>
       </div>
-      <div
-        contentEditable suppressContentEditableWarning
-        className="min-h-[140px] px-4 py-3 text-sm outline-none"
-        data-placeholder={placeholder}
-        dangerouslySetInnerHTML={{ __html: value }}
-        onInput={(e) => onChange(e.currentTarget.innerHTML)}
-      />
+      <EditorContent editor={editor} />
     </div>
   );
 }
 
-/* ─── Link Field ─── */
+function TBtn({ onClick, active, title, children }) {
+  return (
+    <button type="button" onMouseDown={(e) => { e.preventDefault(); onClick(); }} title={title}
+      className={cn(
+        "h-7 w-7 flex items-center justify-center rounded text-sm transition-colors",
+        active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}>
+      {children}
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Asset Field — inline upload + media picker modal
+───────────────────────────────────────────────────────────────── */
+function AssetField({ value, onChange }) {
+  const { t } = useTranslation();
+  const [open, setOpen]       = useState(false);
+  const [search, setSearch]   = useState("");
+  const [page, setPage]       = useState(1);
+  const fileRef               = useRef(null);
+
+  const { data: fileList, isLoading: filesLoading } = useGetFileListQuery(
+    { search, page, pageSize: 20 },
+    { skip: !open }
+  );
+  const [uploadFile, { isLoading: uploading }] = useUploadFileMutation();
+
+  async function handleUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await uploadFile(fd).unwrap();
+      onChange(res.url);
+      setOpen(false);
+      toast.success(t("mediaExtra.uploaded2"));
+    } catch {
+      toast.error(t("mediaExtra.uploadError"));
+    }
+    e.target.value = "";
+  }
+
+  const isImage = value && /\.(jpg|jpeg|png|webp|gif|svg)(\?|$)/i.test(value);
+
+  return (
+    <>
+      <div className="space-y-2">
+        {/* Preview */}
+        {value && (
+          <div className="relative group w-full h-36 rounded-lg border bg-muted/30 overflow-hidden flex items-center justify-center">
+            {isImage
+              ? <img src={value} alt="" className="w-full h-full object-contain" />
+              : <div className="flex flex-col items-center gap-1 text-muted-foreground text-xs"><ImageIcon size={28} /><span className="truncate max-w-[200px]">{value.split("/").pop()}</span></div>
+            }
+            <button type="button" onClick={() => onChange("")}
+              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <X size={12} />
+            </button>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" className="gap-1.5 flex-1" onClick={() => setOpen(true)}>
+            <ImageIcon size={13} /> {t("pages.selectMedia", "Medyadan Seç")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            <Upload size={13} /> {uploading ? t("mediaExtra.uploading") : t("mediaExtra.uploadFile")}
+          </Button>
+          <input ref={fileRef} type="file" accept="image/*,application/pdf,video/*" className="hidden" onChange={handleUpload} />
+        </div>
+
+        {/* Manual URL fallback */}
+        <Input
+          placeholder="/uploads/images/…"
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="text-xs text-muted-foreground"
+        />
+      </div>
+
+      {/* Media picker modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setOpen(false)}>
+          <div className="bg-background rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b">
+              <h2 className="font-semibold text-sm">{t("media.title")}</h2>
+              <button type="button" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
+            </div>
+
+            <div className="flex items-center gap-2 px-5 py-3 border-b">
+              <div className="relative flex-1">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <input
+                  className="w-full pl-8 pr-3 h-8 rounded-md border border-input bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder={t("common.search")}
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                />
+              </div>
+              <Button type="button" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                <Upload size={13} /> {t("mediaExtra.uploadFile")}
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              {filesLoading ? (
+                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">{t("common.loading")}</div>
+              ) : !fileList?.items?.length ? (
+                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">{t("common.noData")}</div>
+              ) : (
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {fileList.items.map((file) => (
+                    <button key={file.id} type="button"
+                      onClick={() => { onChange(file.url); setOpen(false); }}
+                      className="aspect-square rounded-lg border bg-muted/30 overflow-hidden hover:ring-2 hover:ring-primary transition-all flex items-center justify-center group">
+                      {file.thumbnailUrl || /\.(jpg|jpeg|png|webp|gif|svg)/i.test(file.url)
+                        ? <img src={file.thumbnailUrl || file.url} alt={file.fileName} className="w-full h-full object-cover" />
+                        : <ImageIcon size={20} className="text-muted-foreground" />
+                      }
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {fileList && fileList.totalCount > 20 && (
+              <div className="flex items-center justify-between px-5 py-3 border-t text-xs text-muted-foreground">
+                <span>{fileList.totalCount} {t("pages.files", "dosya")}</span>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>‹</Button>
+                  <span className="flex items-center px-2">{page} / {Math.ceil(fileList.totalCount / 20)}</span>
+                  <Button size="sm" variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page >= Math.ceil(fileList.totalCount / 20)}>›</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Link Field
+───────────────────────────────────────────────────────────────── */
 function LinkField({ value, onChange }) {
+  const { t } = useTranslation();
   const parsed = useMemo(() => {
     try { return typeof value === "object" && value !== null ? value : JSON.parse(value || "{}"); }
     catch { return {}; }
@@ -518,18 +692,21 @@ function LinkField({ value, onChange }) {
 
   return (
     <div className="space-y-2">
-      <Input placeholder="Buton metni (örn. Daha Fazla)" value={parsed.label ?? ""} onChange={(e) => set("label", e.target.value)} />
-      <Input placeholder="URL (örn. /hizmetler veya https://...)" value={parsed.href ?? ""} onChange={(e) => set("href", e.target.value)} />
+      <Input placeholder={t("pages.linkLabel", "Buton metni")} value={parsed.label ?? ""} onChange={(e) => set("label", e.target.value)} />
+      <Input placeholder="URL (/hizmetler veya https://...)" value={parsed.href ?? ""} onChange={(e) => set("href", e.target.value)} />
       <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground">
         <input type="checkbox" checked={!!parsed.newTab} onChange={(e) => set("newTab", e.target.checked)} className="rounded" />
-        Yeni sekmede aç
+        {t("pages.openInNewTab", "Yeni sekmede aç")}
       </label>
     </div>
   );
 }
 
-/* ─── SEO Block ─── */
+/* ─────────────────────────────────────────────────────────────────
+   SEO Block
+───────────────────────────────────────────────────────────────── */
 function SeoBlock({ lang, seo, setSeo }) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(true);
   function set(field, value) {
     setSeo((prev) => ({ ...prev, [lang]: { ...(prev[lang] ?? {}), [field]: value } }));
@@ -540,26 +717,25 @@ function SeoBlock({ lang, seo, setSeo }) {
     <div className="rounded-xl border bg-card overflow-hidden">
       <button type="button" onClick={() => setCollapsed((v) => !v)}
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
-        <span className="text-sm font-semibold">SEO <span className="text-xs font-normal text-muted-foreground uppercase">{lang}</span></span>
+        <span className="text-sm font-semibold">
+          {t("pages.seo")} <span className="text-xs font-normal text-muted-foreground uppercase">{lang}</span>
+        </span>
         {collapsed ? <ChevronDown size={15} className="text-muted-foreground" /> : <ChevronUp size={15} className="text-muted-foreground" />}
       </button>
       {!collapsed && (
         <div className="px-4 pb-4 pt-1 space-y-3 border-t">
           <div className="space-y-1.5">
-            <Label className="text-xs">Sayfa Başlığı</Label>
-            <Input placeholder="Sayfa Başlığı | Site Adı" value={s.title ?? ""} onChange={(e) => set("title", e.target.value)} />
+            <Label className="text-xs">{t("pages.seoTitle")}</Label>
+            <Input placeholder={t("pages.seoTitle")} value={s.title ?? ""} onChange={(e) => set("title", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Meta Açıklama</Label>
-            <textarea
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-              rows={2} placeholder="150 karaktere kadar kısa açıklama"
-              value={s.description ?? ""} onChange={(e) => set("description", e.target.value)}
-            />
+            <Label className="text-xs">{t("pages.seoDesc")}</Label>
+            <textarea className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+              rows={2} value={s.description ?? ""} onChange={(e) => set("description", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">OG Görsel URL</Label>
-            <Input placeholder="/uploads/images/og.jpg" value={s.ogImage ?? ""} onChange={(e) => set("ogImage", e.target.value)} />
+            <Label className="text-xs">{t("pages.seoOg")}</Label>
+            <AssetField value={s.ogImage ?? ""} onChange={(v) => set("ogImage", v)} />
           </div>
         </div>
       )}

@@ -300,9 +300,20 @@ function SectionCard({
   onAddField, onRemoveField, onUpdateField, onMoveField,
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  // Track whether the user has manually edited the key — if not, auto-follow the label
+  const [keyEdited, setKeyEdited] = useState(() => !!section.key);
 
   function handleLabelChange(v) {
-    onUpdate({ label: v, key: section.key || slugify(v) });
+    if (keyEdited) {
+      onUpdate({ label: v });
+    } else {
+      onUpdate({ label: v, key: slugify(v) });
+    }
+  }
+
+  function handleKeyChange(v) {
+    setKeyEdited(true);
+    onUpdate({ key: slugify(v) });
   }
 
   const fieldCount = section.fields?.length ?? 0;
@@ -339,7 +350,7 @@ function SectionCard({
             <Input
               placeholder="hero"
               value={section.key}
-              onChange={(e) => onUpdate({ key: slugify(e.target.value) })}
+              onChange={(e) => handleKeyChange(e.target.value)}
               className="h-8 text-xs font-mono"
             />
           </div>
@@ -416,11 +427,21 @@ function SectionCard({
 ══════════════════════════════════════════════ */
 function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }) {
   const [expanded, setExpanded] = useState(false);
+  const [keyEdited, setKeyEdited] = useState(() => !!field.key);
   const info = typeInfo(field.type);
   const Icon = info.icon;
 
   function handleLabelChange(v) {
-    onUpdate({ label: v, key: field.key || slugify(v) });
+    if (keyEdited) {
+      onUpdate({ label: v });
+    } else {
+      onUpdate({ label: v, key: slugify(v) });
+    }
+  }
+
+  function handleKeyChange(v) {
+    setKeyEdited(true);
+    onUpdate({ key: slugify(v) });
   }
 
   return (
@@ -462,7 +483,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
           <Input
             placeholder="baslik"
             value={field.key}
-            onChange={(e) => onUpdate({ key: slugify(e.target.value) })}
+            onChange={(e) => handleKeyChange(e.target.value)}
             className="h-8 text-xs font-mono w-24"
           />
         </div>

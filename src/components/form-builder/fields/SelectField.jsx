@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { Label } from "../../ui/label";
 import FieldWrapper from "./FieldWrapper";
 
 export default function SelectField({ field, value, onChange }) {
+  const { t } = useTranslation();
   return (
     <FieldWrapper field={field}>
       <Label>{field.label}{field.required && " *"}</Label>
@@ -10,7 +12,7 @@ export default function SelectField({ field, value, onChange }) {
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
       >
-        <option value="">Seçin…</option>
+        <option value="">{t("common.selectOption")}</option>
         {(field.options ?? []).map((opt) => (
           <option key={opt.value ?? opt} value={opt.value ?? opt}>
             {opt.label ?? opt}

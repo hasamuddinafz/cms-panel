@@ -126,14 +126,14 @@ export default function DataTable({
                   <td colSpan={columns.length} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      <span className="text-xs">Yükleniyor…</span>
+                      <span className="text-xs">{t("common.loading")}</span>
                     </div>
                   </td>
                 </tr>
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="py-16 text-center text-muted-foreground text-sm">
-                    Kayıt bulunamadı.
+                    {t("common.noData")}
                   </td>
                 </tr>
               ) : (
@@ -156,8 +156,8 @@ export default function DataTable({
       <div className="flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="text-xs text-muted-foreground">
           {totalCount === 0
-            ? "Kayıt yok"
-            : <>{from}–{to} / <strong className="text-foreground">{totalCount}</strong> kayıt</>
+            ? t("common.noRecords")
+            : <>{from}–{to} / <strong className="text-foreground">{totalCount}</strong> {t("common.records")}</>
           }
         </p>
 
@@ -168,7 +168,7 @@ export default function DataTable({
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
           >
             {PAGE_SIZE_OPTIONS.map((n) => (
-              <option key={n} value={n}>{n} / sayfa</option>
+              <option key={n} value={n}>{n} {t("common.perPage")}</option>
             ))}
           </select>
 

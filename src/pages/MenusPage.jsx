@@ -8,11 +8,11 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useGetMenuListQuery, useGetMenuByKeyQuery, useUpsertMenuMutation } from "../features/menus/menusApi";
 
-const MENU_LABEL_KEYS = {
-  "navbar-desktop": "Navbar — Masaüstü",
-  "navbar-mobile":  "Navbar — Mobil",
-  "footer-desktop": "Footer — Masaüstü",
-  "footer-mobile":  "Footer — Mobil",
+const MENU_I18N_KEYS = {
+  "navbar-desktop": "menus.navbarDesktop",
+  "navbar-mobile":  "menus.navbarMobile",
+  "footer-desktop": "menus.footerDesktop",
+  "footer-mobile":  "menus.footerMobile",
 };
 
 function newItem() {
@@ -21,6 +21,7 @@ function newItem() {
 
 export default function MenusPage() {
   const { t } = useTranslation();
+  const menuLabel = (key) => t(MENU_I18N_KEYS[key] ?? key, key);
   const { data: menuList = [] } = useGetMenuListQuery();
   const [activeKey, setActiveKey] = useState("navbar-desktop");
 
@@ -29,12 +30,12 @@ export default function MenusPage() {
       <PanelHelmet title={t("menus.title")} />
       <div className="flex gap-6">
         <nav className="w-48 shrink-0 space-y-1">
-          {(menuList.length > 0 ? menuList : Object.keys(MENU_LABEL_KEYS)).map((m) => {
+          {(menuList.length > 0 ? menuList : Object.keys(MENU_I18N_KEYS)).map((m) => {
             const key = typeof m === "string" ? m : m.key;
             return (
               <button key={key} onClick={() => setActiveKey(key)}
                 className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${activeKey === key ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted/50"}`}>
-                {MENU_LABEL_KEYS[key] ?? key}
+                {menuLabel(key)}
               </button>
             );
           })}
@@ -68,7 +69,7 @@ function MenuEditor({ menuKey }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-sm">{MENU_LABEL_KEYS[menuKey] ?? menuKey}</h2>
+        <h2 className="font-semibold text-sm">{t(MENU_I18N_KEYS[menuKey] ?? menuKey, menuKey)}</h2>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" className="gap-1.5"
             onClick={() => setItems([...currentItems, newItem()])}>

@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import i18n from "../i18n/index";
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -27,10 +28,8 @@ export default class ErrorBoundary extends Component {
           <AlertTriangle size={28} className="text-destructive" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-foreground mb-1">Beklenmeyen bir hata oluştu</h2>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            Bu sayfa yüklenirken bir sorun oluştu. Sayfayı yenileyin ya da destek ekibiyle iletişime geçin.
-          </p>
+          <h2 className="text-base font-semibold text-foreground mb-1">{i18n.t("common.errorTitle")}</h2>
+          <p className="text-sm text-muted-foreground max-w-sm">{i18n.t("common.errorDesc")}</p>
           {this.state.error?.message && (
             <p className="text-xs text-muted-foreground/60 mt-2 font-mono bg-muted px-3 py-1.5 rounded-md inline-block">
               {this.state.error.message}
@@ -41,7 +40,7 @@ export default class ErrorBoundary extends Component {
           onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
           className="flex items-center gap-2 h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
-          <RefreshCw size={14} /> Sayfayı Yenile
+          <RefreshCw size={14} /> {i18n.t("common.refresh")}
         </button>
       </div>
     );

@@ -368,14 +368,20 @@ function RepeaterField({ section, lang, items, onChange }) {
 ───────────────────────────────────────────────────────────────── */
 function DynamicField({ field, lang, allLangs, getValue, setValue }) {
   const { t } = useTranslation();
+  const isMultiLang = allLangs.length > 1;
   const effectiveLang = field.translatable ? lang : (allLangs[0] ?? "tr");
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Label>{field.label ?? field.key}{field.required && <span className="text-destructive ml-0.5">*</span>}</Label>
-        {field.translatable && (
+        {field.translatable && isMultiLang && (
           <span className="text-[10px] bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded px-1.5 py-0.5">
             {t("pages.translatable")}
+          </span>
+        )}
+        {!field.translatable && isMultiLang && (
+          <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded px-1.5 py-0.5" title={t("pages.sharedHint", "Bu alan tüm dillerde aynı değeri gösterir")}>
+            {t("pages.shared", "paylaşımlı")}
           </span>
         )}
       </div>

@@ -93,6 +93,8 @@ const tr = {
       seoDesc:      "Meta Açıklama",
       seoOg:        "OG Görsel URL",
       translatable: "çevirilebilir",
+      shared:       "paylaşımlı",
+      sharedHint:   "Bu alan tüm dillerde aynı değeri gösterir",
       addItem:      "Öğe Ekle",
       noSchemaModel:"Sağ panelden bir sayfa modeli seçin",
       noSchemaHint: "Form otomatik oluşacak",

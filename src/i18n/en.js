@@ -89,6 +89,8 @@ const en = {
       seoDesc:      "Meta Description",
       seoOg:        "OG Image URL",
       translatable: "translatable",
+      shared:       "shared",
+      sharedHint:   "This field shows the same value for all languages",
       addItem:      "Add Item",
       noSchemaModel:"Select a page model from the right panel",
       noSchemaHint: "The form will appear automatically",

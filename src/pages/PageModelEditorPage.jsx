@@ -47,7 +47,7 @@ function slugify(str) {
     .replace(/[^a-z0-9-]/g, "");
 }
 function newField() {
-  return { key: "", label: "", type: "text", translatable: false, required: false };
+  return { key: "", label: "", type: "text", translatable: true, required: false };
 }
 function newSection() {
   return { key: "", label: "", repeatable: false, fields: [newField()] };

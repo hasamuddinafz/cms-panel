@@ -122,7 +122,7 @@ function NavItem({ to, label, icon: Icon, permission }) {
     <li>
       <NavLink
         to={to}
-        end={to === "/"}
+        end={to === "/" || to === "/mail" || to === "/settings"}
         className={({ isActive }) =>
           cn(
             "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",

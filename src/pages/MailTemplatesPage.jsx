@@ -108,7 +108,7 @@ export default function MailTemplatesPage() {
     return (
       <>
         <PanelHelmet title={t("mailTemplates.title")} />
-        <div className="max-w-2xl mx-auto">
+        <div>
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => setEditing(null)}

@@ -39,7 +39,7 @@ export default function MenusPage() {
             );
           })}
         </nav>
-        <div className="flex-1"><MenuEditor menuKey={activeKey} /></div>
+        <div className="flex-1"><MenuEditor key={activeKey} menuKey={activeKey} /></div>
       </div>
     </>
   );

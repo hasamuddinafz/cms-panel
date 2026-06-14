@@ -1,57 +1,121 @@
 import { NavLink } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FileText,
-  Layers,
-  Image,
-  Menu,
-  Settings,
-  Users,
-  Shield,
-  Activity,
-  BookOpen,
-  Globe,
+  LayoutDashboard, FileText, Layers, Image, Menu,
+  Settings, Users, Shield, Activity, BookOpen, Globe,
+  Inbox, Send, Rss, LayoutTemplate,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
 import { usePermission } from "../../app/usePermission";
+import { useAppSelector } from "../../app/hooks";
+import { selectCurrentUser } from "../../features/auth/authSlice";
 
-const navItems = [
-  { to: "/",          label: "Dashboard",       icon: LayoutDashboard, permission: "dashboard.view" },
-  { to: "/page-models", label: "Sayfa Modelleri", icon: Layers,          permission: "pagemodels.view" },
-  { to: "/pages",     label: "İçerik",          icon: FileText,        permission: "pages.view" },
-  { to: "/media",     label: "Medya",            icon: Image,           permission: "media.view" },
-  { to: "/menus",     label: "Menüler",          icon: Menu,            permission: "menus.manage" },
-  { to: "/settings/languages", label: "Diller",  icon: Globe,           permission: "settings.languages.manage" },
-  { to: "/settings",  label: "Ayarlar",          icon: Settings,        permission: "settings.general.edit" },
-  { to: "/users",     label: "Kullanıcılar",     icon: Users,           permission: "users.manage" },
-  { to: "/roles",     label: "Roller & Yetkiler",icon: Shield,          permission: "roles.manage" },
-  { to: "/activity",  label: "Aktivite",         icon: Activity,        permission: "activity.view" },
-  { to: "/docs",      label: "Dokümantasyon",    icon: BookOpen,        permission: null },
-];
+function useNavGroups() {
+  const { t } = useTranslation();
+  return [
+    {
+      labelKey: t("nav.groupContent", "İçerik"),
+      items: [
+        { to: "/",            label: t("nav.dashboard"),  icon: LayoutDashboard, permission: "dashboard.view" },
+        { to: "/page-models", label: t("nav.pageModels"), icon: Layers,          permission: "pagemodels.view" },
+        { to: "/pages",       label: t("nav.content"),    icon: FileText,        permission: "pages.view" },
+        { to: "/media",       label: t("nav.media"),      icon: Image,           permission: "media.view" },
+        { to: "/menus",       label: t("nav.menus"),      icon: Menu,            permission: "menus.manage" },
+      ],
+    },
+    {
+      labelKey: t("nav.groupCommunication", "İletişim"),
+      items: [
+        { to: "/contact",         label: t("nav.contact"),       icon: Inbox,          permission: "contact.view" },
+        { to: "/mail",            label: t("nav.mail"),          icon: Send,           permission: "mail.send" },
+        { to: "/mail/templates",  label: t("nav.mailTemplates", "Mail Şablonları"), icon: LayoutTemplate, permission: "mail.send" },
+        { to: "/subscribers",     label: t("nav.subscribers"),   icon: Rss,            permission: "subscribers.view" },
+      ],
+    },
+    {
+      labelKey: t("nav.groupAdmin", "Yönetim"),
+      items: [
+        { to: "/users",    label: t("nav.users"),    icon: Users,    permission: "users.manage" },
+        { to: "/roles",    label: t("nav.roles"),    icon: Shield,   permission: "roles.manage" },
+        { to: "/activity", label: t("nav.activity"), icon: Activity, permission: "activity.view" },
+      ],
+    },
+    {
+      labelKey: t("nav.groupSystem", "Sistem"),
+      items: [
+        { to: "/settings/languages", label: t("nav.languages"), icon: Globe,     permission: "settings.languages.manage" },
+        { to: "/settings",           label: t("nav.settings"),  icon: Settings,  permission: "settings.general.edit" },
+        { to: "/docs",               label: t("nav.docs"),      icon: BookOpen,  permission: null },
+      ],
+    },
+  ];
+}
 
 export default function Sidebar() {
+  const navGroups = useNavGroups();
+  const user = useAppSelector(selectCurrentUser);
+  const initials = user?.fullName
+    ? user.fullName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+    : (user?.email?.[0] ?? "?").toUpperCase();
+
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border shrink-0">
       {/* Brand */}
-      <div className="flex items-center h-16 px-6 border-b border-sidebar-border">
-        <span className="text-lg font-bold tracking-tight">NEXUS CMS</span>
+      <div className="flex items-center gap-3 h-16 px-5 border-b border-sidebar-border">
+        <img src="/LOGO.png" alt="NEXUS CMS" className="w-8 h-8 object-contain shrink-0" />
+        <div className="leading-tight">
+          <p className="text-sm font-bold tracking-tight text-sidebar-foreground">NEXUS CMS</p>
+          <p className="text-[10px] text-sidebar-foreground/40 uppercase tracking-widest">Admin Panel</p>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
-        <ul className="space-y-0.5">
-          {navItems.map((item) => (
-            <NavItem key={item.to} {...item} />
-          ))}
-        </ul>
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
+        {navGroups.map((group) => (
+          <NavGroup key={group.labelKey} label={group.labelKey} items={group.items} />
+        ))}
       </nav>
+
+      {/* User footer */}
+      {user && (
+        <div className="px-4 py-3 border-t border-sidebar-border">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-sidebar-accent/60 transition-colors">
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-sidebar-foreground truncate">
+                {user.fullName || "Admin"}
+              </p>
+              <p className="text-[10px] text-sidebar-foreground/50 truncate">{user.email}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
+  );
+}
+
+function NavGroup({ label, items }) {
+  const anyVisible = items.some((item) => item.permission === null || true);
+  if (!anyVisible) return null;
+
+  return (
+    <div>
+      <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/35">
+        {label}
+      </p>
+      <ul className="space-y-0.5">
+        {items.map((item) => (
+          <NavItem key={item.to} {...item} />
+        ))}
+      </ul>
+    </div>
   );
 }
 
 function NavItem({ to, label, icon: Icon, permission }) {
   const allowed = usePermission(permission ?? "");
-  // items with no permission (docs) are always shown
   if (permission && !allowed) return null;
 
   return (
@@ -61,15 +125,20 @@ function NavItem({ to, label, icon: Icon, permission }) {
         end={to === "/"}
         className={({ isActive }) =>
           cn(
-            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
             isActive
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+              ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+              : "text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
           )
         }
       >
-        <Icon size={16} />
-        {label}
+        {({ isActive }) => (
+          <>
+            <Icon size={16} className={isActive ? "text-primary" : "opacity-70 group-hover:opacity-100"} />
+            {label}
+            {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+          </>
+        )}
       </NavLink>
     </li>
   );

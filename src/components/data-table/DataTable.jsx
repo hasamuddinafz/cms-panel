@@ -3,31 +3,13 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { ChevronUp, ChevronDown, ChevronsUpDown, Download, Search } from "lucide-react";
+import { ChevronUp, ChevronDown, ChevronsUpDown, FileDown, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
-/**
- * Generic server-side DataTable.
- *
- * Props:
- *   columns       – TanStack column defs (id, header, accessorKey/cell, enableSorting?)
- *   data          – current page rows
- *   totalCount    – total filtered rows (for pagination)
- *   page / setPage
- *   pageSize / setPageSize
- *   search / onSearchChange
- *   sortBy / sortDir / onSortChange(columnId)
- *   isLoading
- *   filters       – { [key]: value } (pass to parent via onFilterChange)
- *   filterSlot    – optional JSX rendered between search and table (for filter controls)
- *   onExportCsv   – () => void
- *   onExportExcel – () => void
- */
 export default function DataTable({
   columns,
   data = [],
@@ -46,6 +28,7 @@ export default function DataTable({
   onExportCsv,
   onExportExcel,
 }) {
+  const { t } = useTranslation();
   const [searchDraft, setSearchDraft] = useState(search);
   const debounceRef = useRef(null);
 
@@ -66,17 +49,18 @@ export default function DataTable({
   });
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to   = Math.min(page * pageSize, totalCount);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[180px] max-w-xs">
-          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-8 h-8 text-sm"
-            placeholder="Ara…"
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            placeholder={t("common.search", "Ara…")}
             value={searchDraft}
             onChange={handleSearchInput}
           />
@@ -84,91 +68,102 @@ export default function DataTable({
 
         {filterSlot}
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5">
           {onExportCsv && (
-            <Button variant="outline" size="sm" onClick={onExportCsv} className="gap-1.5">
-              <Download size={13} /> CSV
-            </Button>
+            <button onClick={onExportCsv}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-md border border-input bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+              <FileDown size={13} /> CSV
+            </button>
           )}
           {onExportExcel && (
-            <Button variant="outline" size="sm" onClick={onExportExcel} className="gap-1.5">
-              <Download size={13} /> Excel
-            </Button>
+            <button onClick={onExportExcel}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-md border border-input bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+              <FileDown size={13} /> Excel
+            </button>
           )}
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id}>
-                {hg.headers.map((header) => {
-                  const col     = header.column;
-                  const canSort = col.columnDef.enableSorting !== false;
-                  const active  = sortBy === col.id;
-                  return (
-                    <th
-                      key={header.id}
-                      className={cn(
-                        "px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide select-none",
-                        canSort && "cursor-pointer hover:text-foreground"
-                      )}
-                      onClick={() => canSort && onSortChange?.(col.id)}
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        {flexRender(col.columnDef.header, header.getContext())}
-                        {canSort && (
-                          active
-                            ? sortDir === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                            : <ChevronsUpDown size={12} className="opacity-40" />
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                {table.getHeaderGroups().flatMap((hg) =>
+                  hg.headers.map((header) => {
+                    const col     = header.column;
+                    const canSort = col.columnDef.enableSorting !== false;
+                    const active  = sortBy === col.id;
+                    return (
+                      <th
+                        key={header.id}
+                        className={cn(
+                          "px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider select-none whitespace-nowrap",
+                          canSort && "cursor-pointer hover:text-foreground"
                         )}
-                      </span>
-                    </th>
-                  );
-                })}
+                        onClick={() => canSort && onSortChange?.(col.id)}
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          {flexRender(col.columnDef.header, header.getContext())}
+                          {canSort && (
+                            <span className="opacity-60">
+                              {active
+                                ? sortDir === "asc" ? <ChevronUp size={11} /> : <ChevronDown size={11} />
+                                : <ChevronsUpDown size={11} className="opacity-40" />}
+                            </span>
+                          )}
+                        </span>
+                      </th>
+                    );
+                  })
+                )}
               </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y">
-            {isLoading ? (
-              <tr>
-                <td colSpan={columns.length} className="py-12 text-center text-muted-foreground text-sm">
-                  Yükleniyor…
-                </td>
-              </tr>
-            ) : table.getRowModel().rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="py-12 text-center text-muted-foreground text-sm">
-                  Kayıt bulunamadı.
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-muted/30 transition-colors">
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-3 py-2.5">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={columns.length} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                      <span className="text-xs">Yükleniyor…</span>
+                    </div>
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="py-16 text-center text-muted-foreground text-sm">
+                    Kayıt bulunamadı.
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <tr key={row.id} className="hover:bg-muted/20 transition-colors group">
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="px-4 py-3">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-        <span>
-          Toplam <strong className="text-foreground">{totalCount}</strong> kayıt
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+        <p className="text-xs text-muted-foreground">
+          {totalCount === 0
+            ? "Kayıt yok"
+            : <>{from}–{to} / <strong className="text-foreground">{totalCount}</strong> kayıt</>
+          }
+        </p>
 
         <div className="flex items-center gap-2">
-          {/* Page size picker */}
           <select
-            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+            className="h-8 rounded-md border border-input bg-card pl-2 pr-7 text-xs text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
           >
@@ -177,16 +172,25 @@ export default function DataTable({
             ))}
           </select>
 
-          {/* Prev / page / next */}
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            ‹
-          </Button>
-          <span className="px-1 text-xs">
-            {page} / {totalPages}
-          </span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-            ›
-          </Button>
+          <div className="flex items-center gap-1">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="w-8 h-8 flex items-center justify-center rounded-md border border-input bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <span className="min-w-[4rem] text-center text-xs text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage(page + 1)}
+              className="w-8 h-8 flex items-center justify-center rounded-md border border-input bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

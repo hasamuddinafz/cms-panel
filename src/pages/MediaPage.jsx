@@ -1,4 +1,5 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Trash2, Upload, Image, FileText, Film, File } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -12,14 +13,17 @@ import {
   useDeleteFileMutation,
 } from "../features/media/mediaApi";
 import { usePermission } from "../app/usePermission";
+import { useConfirm } from "../components/ui/ConfirmDialog";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const TYPE_ICONS = { Image, Document: FileText, Video: Film };
 const FILE_TYPES = ["", "Image", "Document", "Video", "Other"];
 
 export default function MediaPage() {
+  const { t } = useTranslation();
   const dt          = useDataTable();
   const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const { data, isLoading } = useGetFileListQuery({
     search:   dt.queryParams.search,
@@ -33,6 +37,7 @@ export default function MediaPage() {
 
   const canUpload = usePermission("media.upload");
   const canDelete = usePermission("media.delete");
+  const confirm = useConfirm();
 
   const { onExportCsv, onExportExcel } = useExport(
     "/api/admin/files/export",
@@ -40,27 +45,54 @@ export default function MediaPage() {
     "medya"
   );
 
-  async function handleUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadSingleFile(file) {
     const fd = new FormData();
     fd.append("file", file);
     try {
       await uploadFile(fd).unwrap();
-      toast.success("Dosya yüklendi.");
+      toast.success(t("mediaExtra.uploaded2"));
     } catch {
-      toast.error("Yükleme başarısız.");
+      toast.error(t("mediaExtra.uploadError"));
     }
+  }
+
+  async function handleUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadSingleFile(file);
     e.target.value = "";
   }
 
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (!canUpload) return;
+    const files = Array.from(e.dataTransfer.files);
+    for (const file of files) {
+      await uploadSingleFile(file);
+    }
+  }, [canUpload]); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handleDelete(id) {
-    if (!window.confirm("Dosya kalıcı olarak silinecek. Emin misiniz?")) return;
+    if (!await confirm(t("confirm.deleteFile"))) return;
     try {
       await deleteFile(id).unwrap();
-      toast.success("Silindi.");
+      toast.success(t("mediaExtra.deleted"));
     } catch {
-      toast.error("Silme işlemi başarısız.");
+      toast.error(t("mediaExtra.deleteError"));
     }
   }
 
@@ -86,7 +118,7 @@ export default function MediaPage() {
       },
       {
         id: "fileName",
-        header: "Dosya Adı",
+        header: t("mediaExtra.fileName"),
         accessorKey: "fileName",
         cell: ({ row }) => (
           <span className="text-sm font-medium">{row.original.fileName}</span>
@@ -94,7 +126,7 @@ export default function MediaPage() {
       },
       {
         id: "fileType",
-        header: "Tip",
+        header: t("mediaExtra.fileType"),
         accessorKey: "fileType",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">{row.original.fileType}</span>
@@ -102,13 +134,13 @@ export default function MediaPage() {
       },
       {
         id: "sizeBytes",
-        header: "Boyut",
+        header: t("mediaExtra.size"),
         accessorKey: "sizeBytes",
         cell: ({ row }) => formatBytes(row.original.sizeBytes),
       },
       {
         id: "createdAt",
-        header: "Yüklendi",
+        header: t("mediaExtra.uploaded"),
         accessorKey: "createdAt",
         cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("tr-TR"),
       },
@@ -130,42 +162,56 @@ export default function MediaPage() {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [canDelete]
+    [canDelete, t]
   );
 
   const filterSlot = (
     <select
-      className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+      className="h-8 rounded-md border border-input bg-background pl-2 pr-7 text-xs"
       value={dt.queryParams.filters.fileType ?? ""}
       onChange={(e) => dt.onFilterChange("fileType", e.target.value || undefined)}
     >
-      {FILE_TYPES.map((t) => (
-        <option key={t} value={t}>{t || "Tüm tipler"}</option>
+      {FILE_TYPES.map((ftype) => (
+        <option key={ftype} value={ftype}>{ftype || t("mediaExtra.allTypes")}</option>
       ))}
     </select>
   );
 
   return (
     <>
-      <PanelHelmet title="Medya" />
+      <PanelHelmet title={t("media.title")} />
 
-      <div className="flex justify-end mb-4">
-        {canUpload && (
-          <>
-            <Button
-              variant="default"
-              size="sm"
-              disabled={uploading}
-              onClick={() => fileInputRef.current?.click()}
-              className="gap-1.5"
-            >
-              <Upload size={14} />
-              {uploading ? "Yükleniyor…" : "Dosya Yükle"}
-            </Button>
-            <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} />
-          </>
+      {/* Drop zone wrapper */}
+      <div
+        className="relative"
+        onDragOver={canUpload ? handleDragOver : undefined}
+        onDragLeave={canUpload ? handleDragLeave : undefined}
+        onDrop={canUpload ? handleDrop : undefined}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 pointer-events-none">
+            <Upload size={36} className="text-primary mb-2" />
+            <p className="text-sm font-semibold text-primary">{t("mediaExtra.dropToUpload", "Bırakın, yükleyin")}</p>
+          </div>
         )}
-      </div>
+
+        <div className="flex justify-end mb-4">
+          {canUpload && (
+            <>
+              <Button
+                variant="default"
+                size="sm"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-1.5"
+              >
+                <Upload size={14} />
+                {uploading ? t("mediaExtra.uploading") : t("mediaExtra.uploadFile")}
+              </Button>
+              <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} />
+            </>
+          )}
+        </div>
 
       <DataTable
         columns={columns}
@@ -185,6 +231,7 @@ export default function MediaPage() {
         onExportCsv={onExportCsv}
         onExportExcel={onExportExcel}
       />
+      </div>
     </>
   );
 }

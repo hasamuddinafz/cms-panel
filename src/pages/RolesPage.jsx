@@ -1,4 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useConfirm } from "../components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Shield } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -17,8 +19,9 @@ import {
 } from "../features/roles/rolesApi";
 
 export default function RolesPage() {
+  const { t } = useTranslation();
   const dt = useDataTable();
-  const [modal, setModal] = useState(null); // null | { mode: "create" | "edit", roleId? }
+  const [modal, setModal] = useState(null);
 
   const { data, isLoading } = useGetRoleListQuery({
     search:   dt.queryParams.search,
@@ -27,22 +30,23 @@ export default function RolesPage() {
   });
 
   const [deleteRole] = useDeleteRoleMutation();
+  const confirm = useConfirm();
 
   async function handleDelete(id, isSystem) {
-    if (isSystem) return toast.error("Sistem rolleri silinemez.");
-    if (!window.confirm("Bu rol silinecek. Emin misiniz?")) return;
+    if (isSystem) return toast.error(t("rolesExtra.systemCannotDelete"));
+    if (!await confirm(t("confirm.deleteRole"))) return;
     try {
       await deleteRole(id).unwrap();
-      toast.success("Rol silindi.");
+      toast.success(t("rolesExtra.deleted"));
     } catch {
-      toast.error("Silme başarısız.");
+      toast.error(t("rolesExtra.deleteError"));
     }
   }
 
   const columns = useMemo(() => [
     {
       id: "name",
-      header: "Rol Adı",
+      header: t("roles.name"),
       accessorKey: "name",
       cell: ({ row }) => (
         <span className="flex items-center gap-2 font-medium text-sm">
@@ -50,7 +54,7 @@ export default function RolesPage() {
           {row.original.name}
           {row.original.isSystemRole && (
             <span className="text-[10px] bg-primary/10 text-primary rounded px-1.5 py-0.5 font-semibold">
-              SİSTEM
+              {t("roles.system")}
             </span>
           )}
         </span>
@@ -58,7 +62,7 @@ export default function RolesPage() {
     },
     {
       id: "description",
-      header: "Açıklama",
+      header: t("roles.description"),
       accessorKey: "description",
       enableSorting: false,
       cell: ({ row }) => (
@@ -67,7 +71,7 @@ export default function RolesPage() {
     },
     {
       id: "permissionCount",
-      header: "Yetki Sayısı",
+      header: t("roles.permCount"),
       accessorKey: "permissionCount",
       cell: ({ row }) => (
         <span className="text-sm">{row.original.permissionCount}</span>
@@ -97,15 +101,15 @@ export default function RolesPage() {
         </div>
       ),
     },
-  ], []); // eslint-disable-line
+  ], [t]); // eslint-disable-line
 
   return (
     <>
-      <PanelHelmet title="Roller & Yetkiler" />
+      <PanelHelmet title={t("roles.title")} />
 
       <div className="flex justify-end mb-4">
         <Button size="sm" className="gap-1.5" onClick={() => setModal({ mode: "create" })}>
-          <Plus size={14} /> Yeni Rol
+          <Plus size={14} /> {t("roles.new")}
         </Button>
       </div>
 
@@ -131,8 +135,8 @@ export default function RolesPage() {
   );
 }
 
-/* ─── Permission Matrix Modal ─── */
 function RoleModal({ mode, roleId, onClose }) {
+  const { t } = useTranslation();
   const { data: permGroups = [] } = useGetAllPermissionsQuery();
   const { data: existingRole }    = useGetRoleByIdQuery(roleId, { skip: !roleId });
 
@@ -140,7 +144,6 @@ function RoleModal({ mode, roleId, onClose }) {
   const [description, setDescription] = useState(existingRole?.description ?? "");
   const [checked,     setChecked]     = useState(() => new Set(existingRole?.permissionKeys ?? []));
 
-  // Sync once existingRole loads
   useSyncRole(existingRole, setName, setDescription, setChecked);
 
   const [createRole, { isLoading: creating }] = useCreateRoleMutation();
@@ -173,45 +176,49 @@ function RoleModal({ mode, roleId, onClose }) {
     try {
       if (mode === "create") {
         await createRole({ name, description, permissionIds }).unwrap();
-        toast.success("Rol oluşturuldu.");
+        toast.success(t("rolesExtra.created"));
       } else {
         await updateRole({ id: roleId, name, description, permissionIds }).unwrap();
-        toast.success("Rol güncellendi.");
+        toast.success(t("rolesExtra.updated"));
       }
       onClose();
     } catch (err) {
-      toast.error(err?.data ?? "Bir hata oluştu.");
+      toast.error(err?.data ?? t("rolesExtra.error"));
     }
   }
 
   const isBusy = creating || updating;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="role-modal-title"
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+    >
       <div className="bg-background rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="font-semibold">{mode === "create" ? "Yeni Rol" : "Rol Düzenle"}</h2>
+          <h2 id="role-modal-title" className="font-semibold">{mode === "create" ? t("rolesExtra.newRole") : t("rolesExtra.editRole")}</h2>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>✕</Button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          {/* Basic info */}
           <div className="px-5 py-4 border-b space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Rol Adı *</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} required />
+                <Label>{t("rolesExtra.roleName")} *</Label>
+                <Input placeholder="örn. İçerik Editörü" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="space-y-1.5">
-                <Label>Açıklama</Label>
-                <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+                <Label>{t("rolesExtra.roleDesc")}</Label>
+                <Input placeholder="Bu rolün kısa açıklaması" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
             </div>
           </div>
 
-          {/* Permission matrix */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Yetkiler</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("rolesExtra.permissions")}</p>
             {permGroups.map((group) => {
               const keys        = group.permissions.map((p) => p.key);
               const allChecked  = keys.every((k) => checked.has(k));
@@ -219,7 +226,6 @@ function RoleModal({ mode, roleId, onClose }) {
 
               return (
                 <div key={group.module} className="rounded-lg border overflow-hidden">
-                  {/* Module header row */}
                   <div className="flex items-center justify-between bg-muted/50 px-3 py-2">
                     <span className="text-xs font-semibold">{group.module}</span>
                     <label className="flex items-center gap-1.5 text-xs cursor-pointer">
@@ -229,10 +235,9 @@ function RoleModal({ mode, roleId, onClose }) {
                         ref={(el) => { if (el) el.indeterminate = someChecked && !allChecked; }}
                         onChange={(e) => toggleAll(keys, e.target.checked)}
                       />
-                      Tümü
+                      {t("rolesExtra.selectAll")}
                     </label>
                   </div>
-                  {/* Individual permissions */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-border">
                     {group.permissions.map((perm) => (
                       <label
@@ -255,9 +260,9 @@ function RoleModal({ mode, roleId, onClose }) {
           </div>
 
           <div className="flex justify-end gap-2 px-5 py-3 border-t">
-            <Button type="button" variant="outline" onClick={onClose}>İptal</Button>
+            <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
             <Button type="submit" disabled={isBusy}>
-              {isBusy ? "Kaydediliyor…" : "Kaydet"}
+              {isBusy ? t("common.saving") : t("common.save")}
             </Button>
           </div>
         </form>

@@ -3,9 +3,9 @@ import { api } from "../../app/api";
 export const pagesApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getPageInstanceList: builder.query({
-      query: ({ search = "", page = 1, pageSize = 20, sortBy = "", sortDir = "desc", modelKey = "", status = "" } = {}) => ({
-        url: "/api/admin/page-instances",
-        params: { search, page, pageSize, sortBy, sortDir, modelKey, status },
+      query: ({ search = "", page = 1, pageSize = 20, sortBy = "", sortDir = "desc", pageModelId = "", status = "" } = {}) => ({
+        url: "/api/admin/pages",
+        params: { search, page, pageSize, sortBy, sortDir, pageModelId, status },
       }),
       providesTags: (result) =>
         result
@@ -17,32 +17,38 @@ export const pagesApi = api.injectEndpoints({
     }),
 
     getPageInstanceById: builder.query({
-      query: (id) => `/api/admin/page-instances/${id}`,
+      query: (id) => `/api/admin/pages/${id}`,
       providesTags: (_, __, id) => [{ type: "PageInstance", id }],
     }),
 
     createPageInstance: builder.mutation({
-      query: (body) => ({ url: "/api/admin/page-instances", method: "POST", body }),
+      query: (body) => ({ url: "/api/admin/pages", method: "POST", body }),
       invalidatesTags: [{ type: "PageInstance", id: "LIST" }],
     }),
 
     updatePageInstance: builder.mutation({
-      query: ({ id, ...body }) => ({ url: `/api/admin/page-instances/${id}`, method: "PUT", body }),
+      query: ({ id, ...body }) => ({ url: `/api/admin/pages/${id}`, method: "PUT", body: { id, ...body } }),
       invalidatesTags: (_, __, { id }) => [{ type: "PageInstance", id }, { type: "PageInstance", id: "LIST" }],
     }),
 
     deletePageInstance: builder.mutation({
-      query: (id) => ({ url: `/api/admin/page-instances/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `/api/admin/pages/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "PageInstance", id: "LIST" }],
     }),
 
-    changePageStatus: builder.mutation({
-      query: ({ id, action }) => ({
-        url: `/api/admin/page-instances/${id}/status`,
-        method: "PUT",
-        body: { action },
-      }),
-      invalidatesTags: (_, __, { id }) => [{ type: "PageInstance", id }, { type: "PageInstance", id: "LIST" }],
+    publishPage: builder.mutation({
+      query: (id) => ({ url: `/api/admin/pages/${id}/publish`, method: "POST" }),
+      invalidatesTags: (_, __, id) => [{ type: "PageInstance", id }, { type: "PageInstance", id: "LIST" }],
+    }),
+
+    archivePage: builder.mutation({
+      query: (id) => ({ url: `/api/admin/pages/${id}/archive`, method: "POST" }),
+      invalidatesTags: (_, __, id) => [{ type: "PageInstance", id }, { type: "PageInstance", id: "LIST" }],
+    }),
+
+    unpublishPage: builder.mutation({
+      query: (id) => ({ url: `/api/admin/pages/${id}/unpublish`, method: "POST" }),
+      invalidatesTags: (_, __, id) => [{ type: "PageInstance", id }, { type: "PageInstance", id: "LIST" }],
     }),
   }),
 });
@@ -53,5 +59,7 @@ export const {
   useCreatePageInstanceMutation,
   useUpdatePageInstanceMutation,
   useDeletePageInstanceMutation,
-  useChangePageStatusMutation,
+  usePublishPageMutation,
+  useArchivePageMutation,
+  useUnpublishPageMutation,
 } = pagesApi;

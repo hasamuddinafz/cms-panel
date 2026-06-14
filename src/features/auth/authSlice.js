@@ -1,9 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const STORAGE_KEY = "nexus-auth";
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveToStorage(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function clearStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+const saved = loadFromStorage();
+
 const initialState = {
-  accessToken: null,
-  user: null,         // { id, email, fullName }
-  permissions: [],    // string[]
+  accessToken: saved?.accessToken ?? null,
+  user:        saved?.user ?? null,
+  permissions: saved?.permissions ?? [],
 };
 
 const authSlice = createSlice({
@@ -15,11 +38,13 @@ const authSlice = createSlice({
       state.accessToken  = accessToken;
       state.user         = user;
       state.permissions  = permissions ?? [];
+      saveToStorage({ accessToken, user, permissions: permissions ?? [] });
     },
     logout(state) {
       state.accessToken = null;
       state.user        = null;
       state.permissions = [];
+      clearStorage();
     },
   },
 });

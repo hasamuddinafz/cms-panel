@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { toast } from "sonner";
 import { logout, setCredentials } from "../features/auth/authSlice";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -35,6 +36,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       // Retry the original request with new token
       result = await baseQuery(args, api, extraOptions);
     } else {
+      toast.error("Oturumunuz sona erdi. Lütfen tekrar giriş yapın.");
       api.dispatch(logout());
     }
   }
@@ -56,6 +58,9 @@ export const api = createApi({
     "Role",
     "AuditLog",
     "Dashboard",
+    "Contact",
+    "Subscriber",
+    "MailTemplate",
   ],
   endpoints: () => ({}),
 });

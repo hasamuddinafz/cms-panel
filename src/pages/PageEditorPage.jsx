@@ -564,6 +564,11 @@ function AssetField({ value, onChange }) {
     e.target.value = "";
   }
 
+  const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  function toAbsolute(url) {
+    if (!url) return url;
+    return url.startsWith("http") ? url : `${BASE_URL}${url}`;
+  }
   const isImage = value && /\.(jpg|jpeg|png|webp|gif|svg)(\?|$)/i.test(value);
 
   return (
@@ -573,7 +578,7 @@ function AssetField({ value, onChange }) {
         {value && (
           <div className="relative group w-full h-36 rounded-lg border bg-muted/30 overflow-hidden flex items-center justify-center">
             {isImage
-              ? <img src={value} alt="" className="w-full h-full object-contain" />
+              ? <img src={toAbsolute(value)} alt="" className="w-full h-full object-contain" />
               : <div className="flex flex-col items-center gap-1 text-muted-foreground text-xs"><ImageIcon size={28} /><span className="truncate max-w-[200px]">{value.split("/").pop()}</span></div>
             }
             <button type="button" onClick={() => onChange("")}
@@ -641,7 +646,7 @@ function AssetField({ value, onChange }) {
                       onClick={() => { onChange(file.url); setOpen(false); }}
                       className="aspect-square rounded-lg border bg-muted/30 overflow-hidden hover:ring-2 hover:ring-primary transition-all flex items-center justify-center group">
                       {file.thumbnailUrl || /\.(jpg|jpeg|png|webp|gif|svg)/i.test(file.url)
-                        ? <img src={file.thumbnailUrl || file.url} alt={file.fileName} className="w-full h-full object-cover" />
+                        ? <img src={toAbsolute(file.thumbnailUrl || file.url)} alt={file.fileName} className="w-full h-full object-cover" />
                         : <ImageIcon size={20} className="text-muted-foreground" />
                       }
                     </button>

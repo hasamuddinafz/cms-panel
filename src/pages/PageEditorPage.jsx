@@ -124,7 +124,8 @@ export default function PageEditorPage() {
         savedId = res.id;
         toast.success(t("pages.created"));
       }
-      if (andPublish && savedId) {
+      const alreadyPublished = existing?.status === "Published";
+      if (andPublish && savedId && !alreadyPublished) {
         await publishPage(savedId).unwrap();
         toast.success(t("pages.publishedSuccess"));
       }

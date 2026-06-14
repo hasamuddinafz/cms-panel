@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   BookOpen, Layers, FileText, Image, Shield, Settings,
   Menu, Globe, ChevronRight, Info, Lightbulb, Terminal,
-  CheckCircle, AlertCircle, Inbox, Send, Rss,
+  CheckCircle, AlertCircle, Inbox, Rss,
 } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
 import { cn } from "../lib/utils";
@@ -27,9 +27,6 @@ function DocH1({ children }) {
 }
 function DocH2({ children }) {
   return <h2 className="text-base font-semibold text-foreground mt-8 mb-3 pb-2 border-b">{children}</h2>;
-}
-function DocH3({ children }) {
-  return <h3 className="text-sm font-semibold text-foreground mt-5 mb-2">{children}</h3>;
 }
 function DocP({ children }) {
   return <p className="text-sm text-muted-foreground leading-relaxed mb-3">{children}</p>;

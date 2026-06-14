@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft, Save, Plus, Trash2, GripVertical,
   ChevronDown, ChevronUp, Settings2, Layers, Type,
@@ -51,6 +52,7 @@ function newSection() {
    Main Page
 ══════════════════════════════════════════════ */
 export default function PageModelEditorPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -109,26 +111,26 @@ export default function PageModelEditorPage() {
   }));
 
   async function handleSave() {
-    if (!name.trim()) { toast.error("Model adı zorunludur."); return; }
-    if (!key.trim())  { toast.error("Key zorunludur."); return; }
+    if (!name.trim()) { toast.error(t("pageModels.nameRequired")); return; }
+    if (!key.trim())  { toast.error(t("pageModels.keyRequired")); return; }
     for (const sec of sections) {
-      if (!sec.key.trim()) { toast.error("Tüm bölümlerin key alanı dolu olmalı."); return; }
+      if (!sec.key.trim()) { toast.error(t("pageModels.sectionKeyRequired")); return; }
       for (const f of sec.fields ?? []) {
-        if (!f.key.trim()) { toast.error(`"${sec.label || sec.key}" bölümünde boş key'li alan var.`); return; }
+        if (!f.key.trim()) { toast.error(t("pageModels.sectionKeyRequired")); return; }
       }
     }
     const schemaJson = JSON.stringify({ sections });
     try {
       if (isEdit) {
         await updateModel({ id, name, key, description, icon, isSingleton, schemaJson }).unwrap();
-        toast.success("Model güncellendi.");
+        toast.success(t("pageModels.saved"));
       } else {
         await createModel({ name, key, description, icon, isSingleton, schemaJson }).unwrap();
-        toast.success("Model oluşturuldu.");
+        toast.success(t("pageModels.created"));
       }
       navigate("/page-models");
     } catch (err) {
-      toast.error(err?.data?.error ?? "Bir hata oluştu.");
+      toast.error(err?.data?.error ?? t("common.error"));
     }
   }
 

@@ -14,13 +14,15 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PasswordInput } from "../components/ui/password-input";
 import { Label } from "../components/ui/label";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
-  email:    z.string().email("Geçerli bir e-posta girin"),
-  password: z.string().min(1, "Şifre gerekli"),
+  email:    z.string().email(),
+  password: z.string().min(1),
 });
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const dispatch  = useAppDispatch();
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -39,7 +41,7 @@ export default function LoginPage() {
       dispatch(setCredentials(result));
       navigate(from, { replace: true });
     } catch {
-      toast.error("Giriş başarısız. E-posta veya şifre hatalı.");
+      toast.error(t("auth.loginError"));
     }
   }
 
@@ -115,9 +117,9 @@ export default function LoginPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
-                    Giriş yapılıyor…
+                    {t("auth.loggingIn")}
                   </span>
-                ) : "Giriş Yap"}
+                ) : t("auth.login")}
               </Button>
             </form>
           </div>

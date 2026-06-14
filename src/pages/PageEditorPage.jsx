@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Save, CheckCircle, Plus, X, ChevronDown, ChevronUp, GripVertical, ExternalLink } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
 import { Button } from "../components/ui/button";
@@ -18,6 +19,7 @@ import { useGetLanguagesQuery } from "../features/languages/languagesApi";
 import { useGetSettingsQuery } from "../features/settings/settingsApi";
 
 export default function PageEditorPage() {
+  const { t } = useTranslation();
   const { id } = useParams();               // edit mode: /pages/edit/:id
   const [searchParams] = useSearchParams(); // create mode: /pages/new?modelId=xxx
   const navigate = useNavigate();
@@ -93,8 +95,8 @@ export default function PageEditorPage() {
   }
 
   async function save(andPublish = false) {
-    if (!selectedModelId) { toast.error("Lütfen bir sayfa modeli seçin."); return; }
-    if (!slug.trim())     { toast.error("Slug alanı zorunludur."); return; }
+    if (!selectedModelId) { toast.error(t("pages.selectModelRequired")); return; }
+    if (!slug.trim())     { toast.error(t("pages.slugRequired")); return; }
 
     const body = {
       pageModelId: selectedModelId,
@@ -107,23 +109,23 @@ export default function PageEditorPage() {
       let savedId = id;
       if (isEdit) {
         await updateInstance({ id, ...body }).unwrap();
-        toast.success("Kaydedildi.");
+        toast.success(t("pages.saved"));
       } else {
         const res = await createInstance(body).unwrap();
         savedId = res.id;
-        toast.success("İçerik oluşturuldu.");
+        toast.success(t("pages.created"));
       }
       if (andPublish && savedId) {
         await publishPage(savedId).unwrap();
-        toast.success("Yayınlandı!");
+        toast.success(t("pages.publishedSuccess"));
       }
       navigate("/pages");
     } catch (err) {
-      toast.error(err?.data?.error ?? "Bir hata oluştu.");
+      toast.error(err?.data?.error ?? t("common.error"));
     }
   }
 
-  const pageTitle = isEdit ? "İçerik Düzenle" : "Yeni İçerik";
+  const pageTitle = isEdit ? t("pages.edit") : t("pages.new");
 
   return (
     <>

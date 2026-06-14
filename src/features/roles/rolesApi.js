@@ -28,7 +28,7 @@ export const rolesApi = api.injectEndpoints({
     }),
 
     updateRole: builder.mutation({
-      query: ({ id, ...body }) => ({ url: `/api/admin/roles/${id}`, method: "PUT", body }),
+      query: ({ id, ...body }) => ({ url: `/api/admin/roles/${id}`, method: "PUT", body: { id, ...body } }),
       invalidatesTags: (_, __, { id }) => [{ type: "Role", id }, { type: "Role", id: "LIST" }],
     }),
 

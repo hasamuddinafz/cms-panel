@@ -22,7 +22,7 @@ export const mailApi = api.injectEndpoints({
       invalidatesTags: ["MailTemplate"],
     }),
     updateMailTemplate: builder.mutation({
-      query: ({ id, ...body }) => ({ url: `/api/admin/mail-templates/${id}`, method: "PUT", body }),
+      query: ({ id, ...body }) => ({ url: `/api/admin/mail-templates/${id}`, method: "PUT", body: { id, ...body } }),
       invalidatesTags: ["MailTemplate"],
     }),
     deleteMailTemplate: builder.mutation({

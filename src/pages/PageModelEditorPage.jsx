@@ -141,7 +141,7 @@ export default function PageModelEditorPage() {
 
   return (
     <>
-      <PanelHelmet title={isEdit ? "Model Düzenle" : "Yeni Model"} />
+      <PanelHelmet title={isEdit ? t("pageModels.edit") : t("pageModels.new")} />
 
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between mb-8">
@@ -153,13 +153,13 @@ export default function PageModelEditorPage() {
             <ArrowLeft size={16} />
           </button>
           <div>
-            <h1 className="text-xl font-bold">{isEdit ? "Model Düzenle" : "Yeni Sayfa Modeli"}</h1>
+            <h1 className="text-xl font-bold">{isEdit ? t("pageModels.edit") : t("pageModels.new")}</h1>
             {key && <p className="text-xs text-muted-foreground mt-0.5 font-mono">/{key}</p>}
           </div>
         </div>
         <Button size="sm" className="gap-2 h-9 px-4" onClick={handleSave} disabled={isBusy}>
           <Save size={14} />
-          {isBusy ? "Kaydediliyor…" : "Kaydet"}
+          {isBusy ? t("common.saving") : t("common.save")}
         </Button>
       </div>
 
@@ -215,16 +215,16 @@ export default function PageModelEditorPage() {
 
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Model Adı *</Label>
+                <Label className="text-xs font-medium">{t("pageModels.name")} *</Label>
                 <Input
-                  placeholder="örn. Blog Yazısı"
+                  placeholder={t("pageModels.namePlaceholder", "e.g. Blog Post")}
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Key *</Label>
+                <Label className="text-xs font-medium">{t("pageModels.key")} *</Label>
                 <div className="relative">
                   <Input
                     placeholder="blog-post"
@@ -236,18 +236,18 @@ export default function PageModelEditorPage() {
                     <Check size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-green-500" />
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">API'de kullanılır, sonradan değiştirmeyin</p>
+                <p className="text-[11px] text-muted-foreground">{t("pageModels.keyHint", "Used in API — do not change later")}</p>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Açıklama</Label>
-                <Input placeholder="Kısa açıklama" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <Label className="text-xs font-medium">{t("pageModels.description")}</Label>
+                <Input placeholder={t("pageModels.descPlaceholder", "Short description")} value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">İkon</Label>
+                <Label className="text-xs font-medium">{t("pageModels.icon")}</Label>
                 <Input placeholder="FileText, Globe, Star…" value={icon} onChange={(e) => setIcon(e.target.value)} />
-                <p className="text-[11px] text-muted-foreground">Lucide ikon adı (PascalCase)</p>
+                <p className="text-[11px] text-muted-foreground">{t("pageModels.iconHint", "Lucide icon name (PascalCase)")}</p>
               </div>
             </div>
 
@@ -262,15 +262,15 @@ export default function PageModelEditorPage() {
                 {isSingleton && <Check size={10} className="text-white" />}
               </div>
               <div>
-                <p className="text-sm font-medium">Singleton</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Bu modelden yalnızca 1 içerik oluşturulabilir (örn. Anasayfa)</p>
+                <p className="text-sm font-medium">{t("pageModels.singleton")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("pageModels.singletonDesc")}</p>
               </div>
             </div>
           </div>
 
           {/* Field type legend */}
           <div className="rounded-2xl border bg-card p-4 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Alan Tipleri</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("pageModels.fieldTypesLegend", "Field Types")}</p>
             <div className="space-y-1.5">
               {FIELD_TYPES.map((t) => {
                 const Icon = t.icon;
@@ -299,6 +299,7 @@ function SectionCard({
   onUpdate, onRemove, onMove,
   onAddField, onRemoveField, onUpdateField, onMoveField,
 }) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   // Track whether the user has manually edited the key — if not, auto-follow the label
   const [keyEdited, setKeyEdited] = useState(() => !!section.key);
@@ -340,7 +341,7 @@ function SectionCard({
         {/* Section name + key */}
         <div className="flex-1 grid grid-cols-2 gap-2">
           <Input
-            placeholder="Bölüm adı (örn. Hero Alanı)"
+            placeholder={t("pageModels.sectionName")}
             value={section.label}
             onChange={(e) => handleLabelChange(e.target.value)}
             className="h-8 text-sm font-medium"
@@ -367,12 +368,12 @@ function SectionCard({
           )}
         >
           <Repeat2 size={11} />
-          Tekrarlı
+          {t("pageModels.repeatable")}
         </div>
 
         {/* Field count */}
         <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5 shrink-0">
-          {fieldCount} alan
+          {fieldCount} {t("pageModels.fields", "fields")}
         </span>
 
         {/* Collapse */}
@@ -393,7 +394,7 @@ function SectionCard({
         <div className="border-t bg-muted/10 px-4 py-3 space-y-2">
           {fieldCount === 0 && (
             <p className="text-xs text-center text-muted-foreground py-4">
-              Henüz alan yok. Aşağıdan ekleyin.
+              {t("pageModels.noFields", "No fields yet. Add one below.")}
             </p>
           )}
 
@@ -414,7 +415,7 @@ function SectionCard({
             onClick={onAddField}
             className="w-full flex items-center justify-center gap-1.5 border-2 border-dashed rounded-xl py-2.5 text-xs text-muted-foreground hover:text-primary hover:border-primary transition-colors mt-1"
           >
-            <Plus size={13} /> Alan Ekle
+            <Plus size={13} /> {t("pageModels.addField")}
           </button>
         </div>
       )}
@@ -426,6 +427,7 @@ function SectionCard({
    Field Row
 ══════════════════════════════════════════════ */
 function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [keyEdited, setKeyEdited] = useState(() => !!field.key);
   const info = typeInfo(field.type);
@@ -471,7 +473,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
         {/* Label */}
         <Input
-          placeholder="Alan adı (örn. Başlık)"
+          placeholder={t("pageModels.fieldName")}
           value={field.label}
           onChange={(e) => handleLabelChange(e.target.value)}
           className="h-8 text-sm flex-1 min-w-0"
@@ -504,7 +506,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
           <button
             type="button"
             onClick={() => onUpdate({ required: !field.required })}
-            title="Zorunlu alan"
+            title={t("pageModels.required")}
             className={cn(
               "h-6 px-2 rounded-md text-[10px] font-medium border transition-colors",
               field.required
@@ -512,12 +514,12 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
                 : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted"
             )}
           >
-            Zorunlu
+            {t("pageModels.required")}
           </button>
           <button
             type="button"
             onClick={() => onUpdate({ translatable: !field.translatable })}
-            title="Çevirilebilir alan"
+            title={t("pageModels.translatable")}
             className={cn(
               "h-6 px-2 rounded-md text-[10px] font-medium border transition-colors",
               field.translatable
@@ -525,13 +527,13 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
                 : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted"
             )}
           >
-            Çeviri
+            {t("pageModels.translatable")}
           </button>
         </div>
 
         {/* Expand */}
         <button type="button" onClick={() => setExpanded((v) => !v)}
-          title="Gelişmiş ayarlar"
+          title={t("pageModels.advancedSettings", "Advanced settings")}
           className={cn(
             "w-7 h-7 flex items-center justify-center rounded-lg transition-colors shrink-0",
             expanded ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -551,9 +553,9 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
         <div className="border-t bg-muted/5 px-4 py-3 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Placeholder metni</Label>
+              <Label className="text-xs">{t("pageModels.placeholderText", "Placeholder")}</Label>
               <Input
-                placeholder="Kullanıcıya gösterilecek ipucu…"
+                placeholder={t("pageModels.placeholderHint", "Hint shown to user…")}
                 value={field.placeholder ?? ""}
                 onChange={(e) => onUpdate({ placeholder: e.target.value })}
                 className="h-8 text-xs"
@@ -562,16 +564,16 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
             {field.type === "asset" && (
               <div className="space-y-1.5">
-                <Label className="text-xs">İzin verilen medya tipi</Label>
+                <Label className="text-xs">{t("pageModels.assetType", "Allowed media type")}</Label>
                 <select
                   className="w-full h-8 border rounded-md pl-2 pr-7 text-xs bg-background focus:outline-none focus:ring-1 focus:ring-primary"
                   value={field.assetType ?? ""}
                   onChange={(e) => onUpdate({ assetType: e.target.value })}
                 >
-                  <option value="">Hepsi</option>
-                  <option value="image">Sadece Görsel</option>
-                  <option value="document">Sadece Belge</option>
-                  <option value="video">Sadece Video</option>
+                  <option value="">{t("pageModels.assetAll", "All")}</option>
+                  <option value="image">{t("pageModels.assetImage", "Image only")}</option>
+                  <option value="document">{t("pageModels.assetDoc", "Document only")}</option>
+                  <option value="video">{t("pageModels.assetVideo", "Video only")}</option>
                 </select>
               </div>
             )}
@@ -579,11 +581,11 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
             {field.type === "number" && (
               <>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Min değer</Label>
+                  <Label className="text-xs">{t("pageModels.minValue", "Min")}</Label>
                   <Input type="number" placeholder="0" value={field.min ?? ""} onChange={(e) => onUpdate({ min: e.target.value })} className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Max değer</Label>
+                  <Label className="text-xs">{t("pageModels.maxValue", "Max")}</Label>
                   <Input type="number" placeholder="100" value={field.max ?? ""} onChange={(e) => onUpdate({ max: e.target.value })} className="h-8 text-xs" />
                 </div>
               </>
@@ -592,11 +594,11 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
           {field.type === "select" && (
             <div className="space-y-1.5">
-              <Label className="text-xs">Seçenekler <span className="text-muted-foreground font-normal">(her satıra bir seçenek — değer:Etiket veya sadece değer)</span></Label>
+              <Label className="text-xs">{t("pageModels.selectOptions", "Options")} <span className="text-muted-foreground font-normal">({t("pageModels.selectOptionsHint", "one per line — value:Label or just value")})</span></Label>
               <textarea
                 className="w-full border rounded-xl px-3 py-2 text-xs bg-background font-mono focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                 rows={4}
-                placeholder={"kucuk:Küçük\norta:Orta\nbuyuk:Büyük"}
+                placeholder={"small:Small\nmedium:Medium\nlarge:Large"}
                 value={(field.options ?? []).map((o) =>
                   o.value && o.label !== o.value ? `${o.value}:${o.label}` : (o.value ?? o)
                 ).join("\n")}

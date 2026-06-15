@@ -74,10 +74,10 @@ function GeneralTab({ settings }) {
 
   return (
     <SettingsForm title={t("settingsExtra.generalTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
-      <Field label={t("settings.siteName")} placeholder="örn. Şirketim A.Ş." value={form.siteName} onChange={(v) => setForm((f) => ({ ...f, siteName: v }))} />
+      <Field label={t("settings.siteName")} placeholder={t("settingsExtra.siteNamePlaceholder", "e.g. My Company Ltd.")} value={form.siteName} onChange={(v) => setForm((f) => ({ ...f, siteName: v }))} />
       <Field label={t("settings.email")} placeholder="info@sirket.com" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
       <Field label={t("settings.phone")} placeholder="+90 212 000 00 00" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-      <Field label={t("settings.address")} placeholder="İstanbul, Türkiye" value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
+      <Field label={t("settings.address")} placeholder={t("settingsExtra.addressPlaceholder", "City, Country")} value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
       <Field label={t("settingsExtra.siteBaseUrl", "Site URL")} placeholder="https://www.sirket.com" value={form.siteBaseUrl} onChange={(v) => setForm((f) => ({ ...f, siteBaseUrl: v }))} />
       {/* Abonelik toggle */}
       <ToggleSetting
@@ -97,7 +97,7 @@ function GeneralTab({ settings }) {
         <>
           <Field
             label={t("settingsExtra.contactAutoReplySubject", "Otomatik Yanıt Konusu")}
-            placeholder="Mesajınız alındı — teşekkürler!"
+            placeholder={t("settingsExtra.autoReplySubjectPlaceholder", "Your message has been received — thank you!")}
             value={form.contactAutoReplySubject}
             onChange={(v) => setForm((f) => ({ ...f, contactAutoReplySubject: v }))}
           />
@@ -105,7 +105,7 @@ function GeneralTab({ settings }) {
             <Label>{t("settingsExtra.contactAutoReplyBody", "Otomatik Yanıt İçeriği (HTML)")}</Label>
             <textarea
               rows={5}
-              placeholder="<p>Merhaba, mesajınız alındı. En kısa sürede dönüş yapacağız.</p>"
+              placeholder={t("settingsExtra.autoReplyBodyPlaceholder", "<p>Hello, your message has been received. We will get back to you shortly.</p>")}
               value={form.contactAutoReplyBody}
               onChange={(e) => setForm((f) => ({ ...f, contactAutoReplyBody: e.target.value }))}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring resize-y"
@@ -134,7 +134,7 @@ function SeoTab({ settings }) {
   return (
     <SettingsForm title={t("settingsExtra.seoTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
       <Field label={t("settingsExtra.titleTemplate")} placeholder="| Site Adı" value={form.titleTemplate} onChange={(v) => setForm((f) => ({ ...f, titleTemplate: v }))} />
-      <Field label={t("settingsExtra.defaultDesc")} placeholder="Sitenizi kısaca tanımlayan 150 karakterlik metin" value={form.defaultDescription} onChange={(v) => setForm((f) => ({ ...f, defaultDescription: v }))} />
+      <Field label={t("settingsExtra.defaultDesc")} placeholder={t("settingsExtra.defaultDescPlaceholder", "150-character description of your site")} value={form.defaultDescription} onChange={(v) => setForm((f) => ({ ...f, defaultDescription: v }))} />
       <Field label={t("settingsExtra.analyticsId")} placeholder="G-XXXXXXXXXX" value={form.googleAnalyticsId} onChange={(v) => setForm((f) => ({ ...f, googleAnalyticsId: v }))} />
       <Field label={t("settingsExtra.tagManagerId")} placeholder="GTM-XXXXXXX" value={form.googleTagManagerId} onChange={(v) => setForm((f) => ({ ...f, googleTagManagerId: v }))} />
     </SettingsForm>

@@ -1,11 +1,11 @@
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 ARG REACT_APP_API_URL=http://localhost:5000
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm ci
 
 COPY . .
 RUN npm run build

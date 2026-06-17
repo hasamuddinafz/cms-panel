@@ -1,11 +1,11 @@
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 ARG REACT_APP_API_URL=http://localhost:5000
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 COPY package*.json ./
-RUN apk add --no-cache python3 make g++ && npm ci --prefer-offline
+RUN apk add --no-cache python3 make g++ && npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build

@@ -1,70 +1,94 @@
-# Getting Started with Create React App
+# NEXUS CMS — Admin Panel
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React admin panel for the NEXUS CMS headless content management system.
 
-## Available Scripts
+## Tech Stack
 
-In the project directory, you can run:
+- **React 18** — Create React App, JSX
+- **Redux Toolkit** + RTK Query
+- **TailwindCSS** + shadcn/ui
+- **TipTap** — rich text editor
+- **react-i18next** — TR / EN
+- **dnd-kit** — drag & drop
+- **TanStack Table** — server-side data tables
+- **Lucide Icons** · **sonner** (toasts)
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js 18+
+- NEXUS CMS API running → [cms-api](https://github.com/hasamuddinafz/cms-api)
 
-### `npm test`
+### Install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm install
+```
 
-### `npm run build`
+### Environment
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Create `.env` in the project root:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Set this to your production API URL before building.
 
-### `npm run eject`
+### Run (development)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm start
+# http://localhost:3000
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Build (production)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm run build
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Features
 
-## Learn More
+| Module | Description |
+|---|---|
+| Dashboard | Stats, top pages, recent activity chart |
+| Page Models | Drag & drop schema builder (sections + fields) |
+| Content | Multi-language content editor, draft/publish workflow |
+| Media Library | Upload, thumbnails, search, pagination |
+| Menus | Navbar / Footer editor — desktop & mobile variants |
+| Languages | Manage active languages and default |
+| Settings | General, SEO, SMTP, Localization, Theme |
+| Users | User management with dynamic role assignment |
+| Roles & Permissions | Granular permission matrix per module/action |
+| Activity Log | Full audit trail with CSV/Excel export |
+| Mail | Send individual or bulk mail via SMTP |
+| Mail Templates | Reusable email templates |
+| Subscribers | Newsletter subscriber list |
+| Contact Messages | Contact form inbox with auto-reply support |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Multi-language Content
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Fields marked **translatable** in the schema store content per language. Non-translatable fields show an amber **"shared"** badge and share one value across all languages.
 
-### Code Splitting
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
+src/
+├── app/              # Redux store, typed hooks
+├── components/
+│   ├── data-table/   # Generic server-side table (search, sort, paginate, export)
+│   ├── form-builder/ # Dynamic field renderer (text, richtext, asset, repeater…)
+│   ├── layout/       # Sidebar, Header, PanelHelmet
+│   └── ui/           # shadcn/ui primitives, ConfirmDialog
+├── features/         # RTK Query API slices per domain
+├── i18n/             # tr.js / en.js translations
+└── pages/            # Route-level page components
+```
 
-### Analyzing the Bundle Size
+## Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Variable | Default | Description |
+|---|---|---|
+| `REACT_APP_API_URL` | `http://localhost:5000` | NEXUS CMS API base URL |

@@ -416,6 +416,13 @@ const tr = {
       defaultDescPlaceholder: "Sitenizi kısaca tanımlayan 150 karakterlik metin",
       autoReplySubjectPlaceholder: "Mesajınız alındı — teşekkürler!",
       autoReplyBodyPlaceholder: "<p>Merhaba, mesajınız alındı. En kısa sürede dönüş yapacağız.</p>",
+      siteBaseUrl:    "Site URL",
+      subscriptionEnabled: "Abonelik Sistemi",
+      subscriptionEnabledDesc: "Kapalıyken /api/public/subscribe endpoint'i 503 döner, yeni abonelik alınmaz.",
+      contactAutoReply: "İletişim Formu Otomatik Yanıt",
+      contactAutoReplyDesc: "Ziyaretçi iletişim formu gönderdiğinde otomatik bir teşekkür maili gönderilir.",
+      contactAutoReplySubject: "Otomatik Yanıt Konusu",
+      contactAutoReplyBody: "Otomatik Yanıt İçeriği (HTML)",
     },
     // Mail
     mail: {

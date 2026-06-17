@@ -397,6 +397,13 @@ const en = {
       defaultDescPlaceholder: "150-character description of your site",
       autoReplySubjectPlaceholder: "Your message has been received — thank you!",
       autoReplyBodyPlaceholder: "<p>Hello, your message has been received. We will get back to you shortly.</p>",
+      siteBaseUrl:    "Site URL",
+      subscriptionEnabled: "Subscription System",
+      subscriptionEnabledDesc: "When disabled, /api/public/subscribe returns 503 and no new subscriptions are accepted.",
+      contactAutoReply: "Contact Form Auto-Reply",
+      contactAutoReplyDesc: "When a visitor submits the contact form, an automatic thank-you email is sent.",
+      contactAutoReplySubject: "Auto-Reply Subject",
+      contactAutoReplyBody: "Auto-Reply Content (HTML)",
     },
     mail: {
       title:           "Send Mail",

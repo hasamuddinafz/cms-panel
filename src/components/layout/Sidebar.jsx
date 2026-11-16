@@ -4,48 +4,46 @@ import {
   Settings, Users, Shield, Activity, BookOpen, Globe,
   Inbox, Send, Rss, LayoutTemplate,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
 import { usePermission } from "../../app/usePermission";
 import { useAppSelector } from "../../app/hooks";
 import { selectCurrentUser } from "../../features/auth/authSlice";
 
 function useNavGroups() {
-  const { t } = useTranslation();
   return [
     {
-      labelKey: t("nav.groupContent", "İçerik"),
+      labelKey: "Content",
       items: [
-        { to: "/",            label: t("nav.dashboard"),  icon: LayoutDashboard, permission: "dashboard.view" },
-        { to: "/page-models", label: t("nav.pageModels"), icon: Layers,          permission: "pagemodels.view" },
-        { to: "/pages",       label: t("nav.content"),    icon: FileText,        permission: "pages.view" },
-        { to: "/media",       label: t("nav.media"),      icon: Image,           permission: "media.view" },
-        { to: "/menus",       label: t("nav.menus"),      icon: Menu,            permission: "menus.manage" },
+        { to: "/",            label: "Dashboard",  icon: LayoutDashboard, permission: "dashboard.view" },
+        { to: "/page-models", label: "Page Models", icon: Layers,          permission: "pagemodels.view" },
+        { to: "/pages",       label: "Content",    icon: FileText,        permission: "pages.view" },
+        { to: "/media",       label: "Media",      icon: Image,           permission: "media.view" },
+        { to: "/menus",       label: "Menus",      icon: Menu,            permission: "menus.manage" },
       ],
     },
     {
-      labelKey: t("nav.groupCommunication", "İletişim"),
+      labelKey: "Communication",
       items: [
-        { to: "/contact",         label: t("nav.contact"),       icon: Inbox,          permission: "contact.view" },
-        { to: "/mail",            label: t("nav.mail"),          icon: Send,           permission: "mail.send" },
-        { to: "/mail/templates",  label: t("nav.mailTemplates", "Mail Şablonları"), icon: LayoutTemplate, permission: "mail.send" },
-        { to: "/subscribers",     label: t("nav.subscribers"),   icon: Rss,            permission: "subscribers.view" },
+        { to: "/contact",         label: "Contact Messages",       icon: Inbox,          permission: "contact.view" },
+        { to: "/mail",            label: "Send Mail",          icon: Send,           permission: "mail.send" },
+        { to: "/mail/templates",  label: "Mail Templates", icon: LayoutTemplate, permission: "mail.send" },
+        { to: "/subscribers",     label: "Subscribers",   icon: Rss,            permission: "subscribers.view" },
       ],
     },
     {
-      labelKey: t("nav.groupAdmin", "Yönetim"),
+      labelKey: "Administration",
       items: [
-        { to: "/users",    label: t("nav.users"),    icon: Users,    permission: "users.manage" },
-        { to: "/roles",    label: t("nav.roles"),    icon: Shield,   permission: "roles.manage" },
-        { to: "/activity", label: t("nav.activity"), icon: Activity, permission: "activity.view" },
+        { to: "/users",    label: "Users",    icon: Users,    permission: "users.manage" },
+        { to: "/roles",    label: "Roles & Permissions",    icon: Shield,   permission: "roles.manage" },
+        { to: "/activity", label: "Activity", icon: Activity, permission: "activity.view" },
       ],
     },
     {
-      labelKey: t("nav.groupSystem", "Sistem"),
+      labelKey: "System",
       items: [
-        { to: "/settings/languages", label: t("nav.languages"), icon: Globe,     permission: "settings.languages.manage" },
-        { to: "/settings",           label: t("nav.settings"),  icon: Settings,  permission: "settings.general.edit" },
-        { to: "/docs",               label: t("nav.docs"),      icon: BookOpen,  permission: null },
+        { to: "/settings/languages", label: "Languages", icon: Globe,     permission: "settings.languages.manage" },
+        { to: "/settings",           label: "Settings",  icon: Settings,  permission: "settings.general.edit" },
+        { to: "/docs",               label: "Documentation",      icon: BookOpen,  permission: null },
       ],
     },
   ];

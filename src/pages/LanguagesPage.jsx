@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
@@ -15,30 +14,29 @@ import {
 } from "../features/languages/languagesApi";
 
 export default function LanguagesPage() {
-  const { t } = useTranslation();
   const { data: languages = [], isLoading } = useGetLanguagesQuery();
   const [deleteLanguage] = useDeleteLanguageMutation();
   const confirm = useConfirm();
   const [modal, setModal] = useState(null);
 
   async function handleDelete(id, isDefault) {
-    if (isDefault) return toast.error(t("languages.defaultCannotDelete"));
-    if (!await confirm(t("confirm.deleteLanguage"))) return;
+    if (isDefault) return toast.error("Default language cannot be deleted.");
+    if (!await confirm("This language will be deleted. Are you sure?")) return;
     try {
       await deleteLanguage(id).unwrap();
-      toast.success(t("languages.deleted"));
+      toast.success("Language deleted.");
     } catch {
-      toast.error(t("languages.failed"));
+      toast.error("Operation failed.");
     }
   }
 
   return (
     <>
-      <PanelHelmet title={t("nav.languages")} />
+      <PanelHelmet title="Languages" />
 
       <div className="flex justify-end mb-4">
         <Button size="sm" className="gap-1.5" onClick={() => setModal({ mode: "create" })}>
-          <Plus size={14} /> {t("languages.addLanguage")}
+          <Plus size={14} /> Add Language
         </Button>
       </div>
 
@@ -46,17 +44,17 @@ export default function LanguagesPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">{t("languages.code")}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">{t("languages.name")}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">{t("languages.flagIcon")}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">{t("languages.status")}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">{t("languages.isDefault")}</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Code</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Name</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Flag</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Default</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y">
             {isLoading && (
-              <tr><td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">{t("common.loading")}</td></tr>
+              <tr><td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">Loading…</td></tr>
             )}
             {languages.map((lang) => (
               <tr key={lang.id} className="hover:bg-muted/20 transition-colors">
@@ -65,7 +63,7 @@ export default function LanguagesPage() {
                 <td className="px-4 py-3 text-lg">{lang.flagIcon}</td>
                 <td className="px-4 py-3">
                   <span className={`text-xs rounded px-1.5 py-0.5 ${lang.isActive ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                    {lang.isActive ? t("common.active") : t("common.passive")}
+                    {lang.isActive ? "Active" : "Passive"}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -87,7 +85,7 @@ export default function LanguagesPage() {
               </tr>
             ))}
             {!isLoading && languages.length === 0 && (
-              <tr><td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">{t("languages.noLanguages")}</td></tr>
+              <tr><td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">No languages added yet.</td></tr>
             )}
           </tbody>
         </table>
@@ -99,7 +97,6 @@ export default function LanguagesPage() {
 }
 
 function LanguageModal({ mode, lang, onClose }) {
-  const { t } = useTranslation();
   const [form, setForm] = useState({
     code: lang?.code ?? "",
     name: lang?.name ?? "",
@@ -121,14 +118,14 @@ function LanguageModal({ mode, lang, onClose }) {
     try {
       if (mode === "create") {
         await createLanguage(form).unwrap();
-        toast.success(t("languages.added"));
+        toast.success("Language added.");
       } else {
         await updateLanguage({ id: lang.id, ...form }).unwrap();
-        toast.success(t("languages.updated"));
+        toast.success("Language updated.");
       }
       onClose();
     } catch {
-      toast.error(t("languages.failed"));
+      toast.error("Operation failed.");
     }
   }
 
@@ -138,43 +135,43 @@ function LanguageModal({ mode, lang, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-background rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="font-semibold text-sm">{mode === "create" ? t("languages.addLanguage") : t("languages.edit")}</h2>
+          <h2 className="font-semibold text-sm">{mode === "create" ? "Add Language" : "Edit Language"}</h2>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>✕</Button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>{t("languages.code")} *</Label>
-              <Input placeholder="tr" value={form.code} onChange={(e) => set("code", e.target.value)} required />
+              <Label>Code *</Label>
+              <Input placeholder="en" value={form.code} onChange={(e) => set("code", e.target.value)} required />
             </div>
             <div className="space-y-1.5">
-              <Label>{t("languages.name")} *</Label>
-              <Input placeholder="Türkçe" value={form.name} onChange={(e) => set("name", e.target.value)} required />
+              <Label>Name *</Label>
+              <Input placeholder="English" value={form.name} onChange={(e) => set("name", e.target.value)} required />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>{t("languages.flagIcon")}</Label>
+              <Label>Flag</Label>
               <Input placeholder="🇹🇷" value={form.flagIcon} onChange={(e) => set("flagIcon", e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>{t("languages.sortOrder")}</Label>
+              <Label>Order</Label>
               <Input type="number" value={form.sortOrder} onChange={(e) => set("sortOrder", +e.target.value)} />
             </div>
           </div>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer text-sm">
               <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="rounded" />
-              {t("languages.isActive")}
+              Active
             </label>
             <label className="flex items-center gap-2 cursor-pointer text-sm">
               <input type="checkbox" checked={form.isDefault} onChange={(e) => set("isDefault", e.target.checked)} className="rounded" />
-              {t("languages.isDefault")}
+              Default
             </label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
-            <Button type="submit" disabled={isBusy}>{isBusy ? t("common.saving") : t("common.save")}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={isBusy}>{isBusy ? "Saving…" : "Save"}</Button>
           </div>
         </form>
       </div>

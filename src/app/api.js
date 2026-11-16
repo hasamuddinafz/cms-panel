@@ -36,7 +36,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       // Retry the original request with new token
       result = await baseQuery(args, api, extraOptions);
     } else {
-      toast.error("Oturumunuz sona erdi. Lütfen tekrar giriş yapın.");
+      toast.error("Your session has expired. Please sign in again.");
       api.dispatch(logout());
     }
   }

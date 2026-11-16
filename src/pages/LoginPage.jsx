@@ -14,7 +14,6 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PasswordInput } from "../components/ui/password-input";
 import { Label } from "../components/ui/label";
-import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   email:    z.string().email(),
@@ -22,7 +21,6 @@ const schema = z.object({
 });
 
 export default function LoginPage() {
-  const { t } = useTranslation();
   const dispatch  = useAppDispatch();
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -41,7 +39,7 @@ export default function LoginPage() {
       dispatch(setCredentials(result));
       navigate(from, { replace: true });
     } catch {
-      toast.error(t("auth.loginError"));
+      toast.error("Login failed. Invalid email or password.");
     }
   }
 
@@ -49,7 +47,7 @@ export default function LoginPage() {
     <>
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
-        <title>Giriş | NEXUS CMS</title>
+        <title>Sign In | NEXUS CMS</title>
       </Helmet>
 
       {/* Background */}
@@ -78,14 +76,14 @@ export default function LoginPage() {
               </div>
               <div className="text-center">
                 <h1 className="text-xl font-bold tracking-tight">NEXUS CMS</h1>
-                <p className="text-sm text-muted-foreground mt-0.5">Yönetim paneline giriş yapın</p>
+                <p className="text-sm text-muted-foreground mt-0.5">Sign in to the admin panel</p>
               </div>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="email">E-posta</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -99,7 +97,7 @@ export default function LoginPage() {
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="password">Şifre</Label>
+                <Label htmlFor="password">Password</Label>
                 <PasswordInput
                   id="password"
                   autoComplete="current-password"
@@ -117,9 +115,9 @@ export default function LoginPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
-                    {t("auth.loggingIn")}
+                    Signing in…
                   </span>
-                ) : t("auth.login")}
+                ) : "Sign In"}
               </Button>
             </form>
           </div>

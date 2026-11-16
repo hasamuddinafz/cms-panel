@@ -9,15 +9,15 @@ import { cn } from "../lib/utils";
 
 /* ─── Nav sections ─── */
 const SECTIONS = [
-  { id: "overview",     label: "Genel Bakış",            icon: BookOpen },
-  { id: "page-models",  label: "Sayfa Modeli Oluşturma", icon: Layers },
-  { id: "content",      label: "İçerik Yönetimi",        icon: FileText },
-  { id: "media",        label: "Medya Yükleme",          icon: Image },
-  { id: "roles",        label: "Rol & Yetki Yönetimi",   icon: Shield },
-  { id: "settings",     label: "Ayarlar",                icon: Settings },
-  { id: "menus",        label: "Menü Yönetimi",          icon: Menu },
-  { id: "contact",      label: "İletişim & Mail",        icon: Inbox },
-  { id: "subscribers",  label: "Aboneler",               icon: Rss },
+  { id: "overview",     label: "Overview",               icon: BookOpen },
+  { id: "page-models",  label: "Creating Page Models",   icon: Layers },
+  { id: "content",      label: "Content Management",     icon: FileText },
+  { id: "media",        label: "Uploading Media",        icon: Image },
+  { id: "roles",        label: "Roles & Permissions",    icon: Shield },
+  { id: "settings",     label: "Settings",               icon: Settings },
+  { id: "menus",        label: "Menu Management",        icon: Menu },
+  { id: "contact",      label: "Contact & Mail",         icon: Inbox },
+  { id: "subscribers",  label: "Subscribers",            icon: Rss },
   { id: "api",          label: "Public API",             icon: Terminal },
 ];
 
@@ -123,23 +123,23 @@ function DocBadge({ children, color = "blue" }) {
 function SectionOverview() {
   return (
     <div>
-      <DocH1>NEXUS CMS — Kullanım Rehberi</DocH1>
+      <DocH1>NEXUS CMS — User Guide</DocH1>
       <DocLead>
-        Kurumunuzun web sitesi içeriğini tek bir admin panelinden yönetmenizi sağlayan
-        headless, API-first bir içerik yönetim sistemi.
+        A headless, API-first content management system that lets you manage your
+        organization's website content from a single admin panel.
       </DocLead>
 
-      <DocH2>Temel Kavramlar</DocH2>
+      <DocH2>Core Concepts</DocH2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
         {[
-          { icon: Layers,   title: "Sayfa Modeli",      desc: "Bir sayfa tipinin şemasını tanımlar. Hangi bölüm ve alanların olacağını belirler." },
-          { icon: FileText, title: "İçerik (Instance)",  desc: "Bir sayfa modelinin doldurulmuş halidir. Her blog yazısı bir instance'tır." },
-          { icon: Image,    title: "Medya",              desc: "Yüklenen resim, belge ve video dosyaları tek merkezden yönetilir. Sürükle-bırak desteklenir." },
-          { icon: Menu,     title: "Menü",               desc: "Sitenin navigasyon yapısı; navbar ve footer için ayrı ayrı tanımlanır." },
-          { icon: Shield,   title: "Rol / Yetki",        desc: "Hangi kullanıcının hangi işlemi yapabileceğini belirler." },
-          { icon: Globe,    title: "Dil",                desc: "Çoklu dil desteği. Translatable alanlar her dil için ayrı girilir." },
-          { icon: Inbox,    title: "İletişim & Mail",    desc: "Ziyaretçi mesajları, otomatik yanıt, mail şablonları ve toplu bülten gönderimi." },
-          { icon: Rss,      title: "Aboneler",           desc: "Abonelik sistemi açık/kapalı yönetimi ve abone listesi." },
+          { icon: Layers,   title: "Page Model",         desc: "Defines the schema of a page type: which sections and fields it contains." },
+          { icon: FileText, title: "Content (Instance)",  desc: "A filled-in page model. Every blog post, for example, is one instance." },
+          { icon: Image,    title: "Media",               desc: "Uploaded images, documents and videos are managed in one place. Drag & drop is supported." },
+          { icon: Menu,     title: "Menu",                desc: "The site's navigation structure, defined separately for navbar and footer." },
+          { icon: Shield,   title: "Role / Permission",   desc: "Determines which user can perform which action." },
+          { icon: Globe,    title: "Language",            desc: "Multi-language content. Translatable fields are entered separately for each language." },
+          { icon: Inbox,    title: "Contact & Mail",      desc: "Visitor messages, auto-reply, mail templates and bulk newsletters." },
+          { icon: Rss,      title: "Subscribers",         desc: "Turn the subscription system on/off and manage the subscriber list." },
         ].map(({ icon: Icon, title, desc }) => (
           <div key={title} className="flex gap-3 p-4 rounded-xl border bg-card hover:border-primary/30 transition-colors">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -153,18 +153,18 @@ function SectionOverview() {
         ))}
       </div>
 
-      <DocH2>Hızlı Başlangıç</DocH2>
-      <DocStep number={1} title="Sayfa Modeli Oluşturun">
-        Sol menüden <strong>Sayfa Modelleri</strong>'ne gidin ve sitenizin içerik yapısını tanımlayın.
+      <DocH2>Quick Start</DocH2>
+      <DocStep number={1} title="Create a page model">
+        Go to <strong>Page Models</strong> in the left menu and define your site's content structure.
       </DocStep>
-      <DocStep number={2} title="İçerik Girin">
-        <strong>İçerik</strong> menüsünden modeli seçerek sayfanızı doldurun. Çoklu dil desteği otomatik aktiftir.
+      <DocStep number={2} title="Enter content">
+        Pick a model under <strong>Content</strong> and fill in your page. Multi-language support is enabled automatically.
       </DocStep>
-      <DocStep number={3} title="Yayınlayın">
-        Taslak olarak kaydedip hazır olduğunuzda <DocCode>Yayınla</DocCode> butonuna tıklayın.
+      <DocStep number={3} title="Publish">
+        Save as a draft, and when it's ready click <DocCode>Publish</DocCode>.
       </DocStep>
-      <DocStep number={4} title="Public API'den Tüketin">
-        Frontend uygulamanız <DocCode>/api/public/pages/{"{modelKey}/{slug}"}</DocCode> endpoint'inden içeriği çeker.
+      <DocStep number={4} title="Consume it from the Public API">
+        Your frontend fetches the content from <DocCode>/api/public/pages/{"{modelKey}/{slug}"}</DocCode>.
       </DocStep>
     </div>
   );
@@ -173,80 +173,80 @@ function SectionOverview() {
 function SectionPageModels() {
   return (
     <div>
-      <DocH1>Sayfa Modeli Oluşturma</DocH1>
-      <DocLead>Sayfa modeli, bir sayfa tipinin şemasını tanımlar. Kod yazmadan, panelden oluşturulur.</DocLead>
+      <DocH1>Creating Page Models</DocH1>
+      <DocLead>A page model defines the schema of a page type. It is created from the panel — no code required.</DocLead>
 
-      <DocH2>Adım Adım</DocH2>
-      <DocStep number={1} title="Sayfa Modelleri sayfasına gidin">
-        Sol menüden <strong>Sayfa Modelleri</strong>'ni seçin.
+      <DocH2>Step by Step</DocH2>
+      <DocStep number={1} title="Go to Page Models">
+        Select <strong>Page Models</strong> from the left menu.
       </DocStep>
-      <DocStep number={2} title="Yeni Model butonuna tıklayın">
-        Sağ üstteki <DocCode>+ Yeni Model</DocCode> butonuna tıklayın.
+      <DocStep number={2} title="Click New Model">
+        Click the <DocCode>+ New Model</DocCode> button at the top right.
       </DocStep>
-      <DocStep number={3} title="Temel bilgileri doldurun">
-        Ad, Key, açıklama ve ikon girin.
+      <DocStep number={3} title="Fill in the basics">
+        Enter a name, key, description and icon.
       </DocStep>
-      <DocStep number={4} title="Schema JSON tanımlayın">
-        Section ve field yapısını JSON olarak girin (aşağıdaki örneğe bakın).
+      <DocStep number={4} title="Define sections and fields">
+        Add sections and fields with the builder (the resulting schema is shown below).
       </DocStep>
 
       <DocTable
-        headers={["Alan", "Örnek", "Açıklama"]}
+        headers={["Field", "Example", "Description"]}
         rows={[
-          ["Ad", "Blog Yazısı", "Modelin okunabilir adı"],
-          ["Key", "blog-post", "URL-friendly, küçük harf, tire ile ayrılmış"],
-          ["Singleton", "✓ işaretli", "İşaretlenirse yalnızca 1 içerik oluşturulabilir"],
-          ["İkon", "FileText", "Lucide ikon adı (PascalCase)"],
+          ["Name", "Blog Post", "Human-readable model name"],
+          ["Key", "blog-post", "URL-friendly, lowercase, hyphen-separated"],
+          ["Singleton", "✓ checked", "If checked, only 1 content item can be created"],
+          ["Icon", "FileText", "Lucide icon name (PascalCase)"],
         ]}
       />
 
-      <DocH2>Desteklenen Field Tipleri</DocH2>
+      <DocH2>Supported Field Types</DocH2>
       <DocTable
-        headers={["Tip", "Kullanım", "Panel Bileşeni"]}
+        headers={["Type", "Use", "Panel Component"]}
         rows={[
-          [<DocCode>text</DocCode>, "Tek satır metin", "Input"],
-          [<DocCode>textarea</DocCode>, "Çok satır metin", "Textarea"],
-          [<DocCode>richtext</DocCode>, "Zengin metin", "TipTap Editör"],
-          [<DocCode>asset</DocCode>, "Görsel / Belge / Video", "Medya Picker Modal"],
-          [<DocCode>boolean</DocCode>, "Açık/Kapalı", "Toggle Switch"],
-          [<DocCode>select</DocCode>, "Sabit seçenekler", "Dropdown"],
-          [<DocCode>repeater</DocCode>, "Tekrarlanabilir alan grubu", "Sürükle-bırak liste"],
-          [<DocCode>link</DocCode>, "URL + etiket + hedef", "Link Picker"],
-          [<DocCode>icon</DocCode>, "Lucide ikon seçimi", "Icon Grid"],
-          [<DocCode>date</DocCode>, "Tarih/Saat", "Date Picker"],
-          [<DocCode>number</DocCode>, "Sayı", "Sayı Input"],
+          [<DocCode>text</DocCode>, "Single-line text", "Input"],
+          [<DocCode>textarea</DocCode>, "Multi-line text", "Textarea"],
+          [<DocCode>richtext</DocCode>, "Rich text", "TipTap Editor"],
+          [<DocCode>asset</DocCode>, "Image / Document / Video", "Media Picker Modal"],
+          [<DocCode>boolean</DocCode>, "On/Off", "Toggle Switch"],
+          [<DocCode>select</DocCode>, "Fixed options", "Dropdown"],
+          [<DocCode>repeater</DocCode>, "Repeatable field group", "Drag & drop list"],
+          [<DocCode>link</DocCode>, "URL + label + target", "Link Picker"],
+          [<DocCode>icon</DocCode>, "Lucide icon picker", "Icon Grid"],
+          [<DocCode>date</DocCode>, "Date/Time", "Date Picker"],
+          [<DocCode>number</DocCode>, "Number", "Number Input"],
         ]}
       />
 
-      <DocH2>Schema JSON Örneği</DocH2>
+      <DocH2>Schema JSON Example</DocH2>
       <DocCodeBlock>{`{
   "sections": [
     {
       "key": "hero",
-      "label": "Hero Alanı",
+      "label": "Hero",
       "repeatable": false,
       "fields": [
-        { "key": "title", "type": "text", "label": "Başlık", "translatable": true, "required": true },
-        { "key": "image", "type": "asset", "label": "Görsel", "assetType": "image" },
-        { "key": "cta",   "type": "link",  "label": "Buton" }
+        { "key": "title", "type": "text", "label": "Title", "translatable": true, "required": true },
+        { "key": "image", "type": "asset", "label": "Image", "assetType": "image" },
+        { "key": "cta",   "type": "link",  "label": "Button" }
       ]
     },
     {
       "key": "features",
-      "label": "Özellikler",
+      "label": "Features",
       "repeatable": true,
       "maxItems": 12,
       "fields": [
-        { "key": "icon",  "type": "icon",     "label": "İkon" },
-        { "key": "title", "type": "text",     "label": "Başlık", "translatable": true },
-        { "key": "text",  "type": "richtext", "label": "Metin",  "translatable": true }
+        { "key": "icon",  "type": "icon",     "label": "Icon" },
+        { "key": "title", "type": "text",     "label": "Title", "translatable": true },
+        { "key": "text",  "type": "richtext", "label": "Text",  "translatable": true }
       ]
     }
   ]
 }`}</DocCodeBlock>
 
       <DocTip>
-        <DocCode>translatable: true</DocCode> işaretlenen field'lar, içerik editöründe her dil için ayrı tab gösterir.
+        Fields marked <DocCode>translatable: true</DocCode> show a separate tab for each language in the content editor.
       </DocTip>
     </div>
   );
@@ -255,50 +255,50 @@ function SectionPageModels() {
 function SectionContent() {
   return (
     <div>
-      <DocH1>İçerik Yönetimi</DocH1>
-      <DocLead>Sayfa modellerinden oluşturulan içerikler burada yönetilir.</DocLead>
+      <DocH1>Content Management</DocH1>
+      <DocLead>Content created from page models is managed here.</DocLead>
 
-      <DocH2>Yeni İçerik Oluşturma</DocH2>
-      <DocStep number={1} title="İçerik sayfasına gidin">Sol menüden <strong>İçerik</strong>'i seçin.</DocStep>
-      <DocStep number={2} title="Model seçin"><DocCode>+ Yeni İçerik</DocCode> butonuna tıklayıp model seçin.</DocStep>
-      <DocStep number={3} title="Slug girin">URL'de kullanılacak slug'ı girin (örn. <DocCode>hakkimizda</DocCode>).</DocStep>
-      <DocStep number={4} title="İçeriği doldurun">Translatable field'lar için dil tab'larını kullanın.</DocStep>
-      <DocStep number={5} title="Kaydedin veya yayınlayın">Taslak kaydedip sonra yayınlayabilirsiniz.</DocStep>
+      <DocH2>Creating New Content</DocH2>
+      <DocStep number={1} title="Go to Content">Select <strong>Content</strong> from the left menu.</DocStep>
+      <DocStep number={2} title="Choose a model">Click <DocCode>+ New Content</DocCode> and select a model.</DocStep>
+      <DocStep number={3} title="Enter a slug">Enter the slug used in the URL (e.g. <DocCode>about-us</DocCode>).</DocStep>
+      <DocStep number={4} title="Fill in the content">Use the language tabs for translatable fields.</DocStep>
+      <DocStep number={5} title="Save or publish">You can save a draft and publish it later.</DocStep>
 
-      <DocH2>İçerik Durumları</DocH2>
+      <DocH2>Content Statuses</DocH2>
       <div className="flex flex-wrap gap-2 my-4">
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm">
-          <DocBadge color="gray">Taslak</DocBadge>
-          <span className="text-muted-foreground text-xs">Sadece editörler görebilir, Public API'de görünmez</span>
+          <DocBadge color="gray">Draft</DocBadge>
+          <span className="text-muted-foreground text-xs">Visible to editors only, not exposed by the Public API</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm">
-          <DocBadge color="green">Yayında</DocBadge>
-          <span className="text-muted-foreground text-xs">Public API üzerinden erişilebilir</span>
+          <DocBadge color="green">Published</DocBadge>
+          <span className="text-muted-foreground text-xs">Available through the Public API</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm">
-          <DocBadge color="orange">Arşiv</DocBadge>
-          <span className="text-muted-foreground text-xs">Yayından alınmış, silinmemiş</span>
+          <DocBadge color="orange">Archived</DocBadge>
+          <span className="text-muted-foreground text-xs">Unpublished but not deleted</span>
         </div>
       </div>
 
       <DocTip>
-        Listedeki <strong>CSV / Excel</strong> butonlarıyla filtrelenmiş içerikleri dışa aktarabilirsiniz.
+        Use the <strong>CSV / Excel</strong> buttons on the list to export the filtered content.
       </DocTip>
 
-      <DocH2>Sayfa Önizleme</DocH2>
+      <DocH2>Page Preview</DocH2>
       <DocP>
-        İçerik düzenlerken sağ üstte <DocCode>Önizle</DocCode> butonu belirir. Bu butona tıklandığında <strong>Ayarlar → Genel</strong> sekmesinde tanımlı <DocCode>Site URL</DocCode> baz alınarak sayfanız yeni sekmede açılır.
+        While editing content, a <DocCode>Preview</DocCode> button appears at the top right. Clicking it opens your page in a new tab, based on the <DocCode>Site URL</DocCode> configured under <strong>Settings → General</strong>.
       </DocP>
-      <DocStep number={1} title="Site URL'sini ayarlayın">Ayarlar → Genel sekmesindeki <DocCode>Site URL</DocCode> alanına sitenizin adresini girin (örn. <DocCode>https://www.sirket.com</DocCode>).</DocStep>
-      <DocStep number={2} title="İçeriği açın">Herhangi bir içerik düzenleme sayfasında Önizle butonuna tıklayın.</DocStep>
+      <DocStep number={1} title="Set the Site URL">Enter your site's address in the <DocCode>Site URL</DocCode> field under Settings → General (e.g. <DocCode>https://www.company.com</DocCode>).</DocStep>
+      <DocStep number={2} title="Open the content">Click Preview on any content edit page.</DocStep>
 
-      <DocH2>Durum Geçişleri</DocH2>
+      <DocH2>Status Transitions</DocH2>
       <DocTable
-        headers={["Kaynak", "Hedef", "Nasıl"]}
+        headers={["From", "To", "How"]}
         rows={[
-          ["Taslak", "Yayında", "Liste ekranında yeşil ✓ ikonuna tıklayın (pages.publish yetkisi gerekir)"],
-          ["Yayında", "Arşiv", "Liste ekranında arşiv ikonuna tıklayın"],
-          ["Arşiv", "Taslak", "Düzenle ekranından durum değiştirin"],
+          ["Draft", "Published", "Click the green ✓ icon on the list (requires the pages.publish permission)"],
+          ["Published", "Archived", "Click the archive icon on the list"],
+          ["Archived", "Draft", "Change the status from the edit screen"],
         ]}
       />
     </div>
@@ -308,43 +308,43 @@ function SectionContent() {
 function SectionMedia() {
   return (
     <div>
-      <DocH1>Medya Kütüphanesi</DocH1>
-      <DocLead>Tüm dosyalar (resim, PDF, video vb.) tek merkezden yönetilir.</DocLead>
+      <DocH1>Media Library</DocH1>
+      <DocLead>All files (images, PDFs, videos, etc.) are managed in one place.</DocLead>
 
-      <DocH2>Dosya Yükleme</DocH2>
-      <DocStep number={1} title="Medya sayfasına gidin">Sol menüden <strong>Medya</strong>'yı seçin.</DocStep>
-      <DocStep number={2} title="Dosyayı yükleyin">Sağ üstteki <DocCode>Dosya Yükle</DocCode> butonuna tıklayın ya da dosyaları doğrudan sayfaya <strong>sürükleyip bırakın</strong> — birden fazla dosya aynı anda yüklenebilir.</DocStep>
-      <DocStep number={3} title="Otomatik sınıflandırma">Dosya türüne (resim/belge/video) göre otomatik klasörlenir, resimler için küçük önizleme (thumbnail) oluşturulur.</DocStep>
+      <DocH2>Uploading Files</DocH2>
+      <DocStep number={1} title="Go to Media">Select <strong>Media</strong> from the left menu.</DocStep>
+      <DocStep number={2} title="Upload the file">Click <DocCode>Upload File</DocCode> at the top right, or <strong>drag and drop</strong> files directly onto the page — multiple files can be uploaded at once.</DocStep>
+      <DocStep number={3} title="Automatic classification">Files are filed automatically by type (image/document/video), and a thumbnail is generated for images.</DocStep>
 
       <DocTip>
-        Medya sayfasına dosya sürükleyip bıraktığınızda mavi bir bırakma alanı belirir. Birden fazla dosyayı aynı anda bırakabilirsiniz.
+        When you drag files onto the Media page, a blue drop zone appears. You can drop several files at once.
       </DocTip>
 
-      <DocH2>Depolama Yapısı</DocH2>
+      <DocH2>Storage Layout</DocH2>
       <DocCodeBlock>{`wwwroot/uploads/
-├── images/     → Resimler (JPEG, PNG, WebP, GIF, SVG)
-│   └── 2026/06/{guid}-dosya.jpg
-├── documents/  → Belgeler (PDF, Word, Excel)
-├── videos/     → Videolar (MP4, WebM)
-└── other/      → Diğer`}</DocCodeBlock>
+├── images/     → Images (JPEG, PNG, WebP, GIF, SVG)
+│   └── 2026/06/{guid}-file.jpg
+├── documents/  → Documents (PDF, Word, Excel)
+├── videos/     → Videos (MP4, WebM)
+└── other/      → Other`}</DocCodeBlock>
 
-      <DocH2>Dosya Limitleri</DocH2>
+      <DocH2>File Limits</DocH2>
       <DocTable
-        headers={["Tür", "Maksimum Boyut"]}
+        headers={["Type", "Max Size"]}
         rows={[
-          ["Resim", "5 MB"],
-          ["Belge", "20 MB"],
+          ["Image", "5 MB"],
+          ["Document", "20 MB"],
           ["Video", "100 MB"],
         ]}
       />
 
-      <DocH2>Özellikler</DocH2>
+      <DocH2>Features</DocH2>
       <div className="space-y-2 my-4">
         {[
-          { icon: CheckCircle, text: "Resimler için otomatik thumbnail oluşturulur" },
-          { icon: CheckCircle, text: "Alt text (erişilebilirlik) her dil için ayrı girilebilir" },
-          { icon: CheckCircle, text: "FileType filtresi ile sadece resim/belge/video görüntülenebilir" },
-          { icon: CheckCircle, text: "İçerik formlarındaki asset field'larında doğrudan seçilebilir" },
+          { icon: CheckCircle, text: "Thumbnails are generated automatically for images" },
+          { icon: CheckCircle, text: "Alt text (accessibility) can be entered per language" },
+          { icon: CheckCircle, text: "Filter by file type to show only images, documents or videos" },
+          { icon: CheckCircle, text: "Files can be picked directly from asset fields in content forms" },
         ].map(({ icon: Icon, text }) => (
           <div key={text} className="flex items-start gap-2.5">
             <Icon size={15} className="text-green-500 mt-0.5 shrink-0" />
@@ -359,18 +359,18 @@ function SectionMedia() {
 function SectionRoles() {
   return (
     <div>
-      <DocH1>Rol & Yetki Yönetimi</DocH1>
-      <DocLead>Dinamik rol sistemi — yöneticiler kendi rollerini panelden oluşturur, kod değişikliği gerekmez.</DocLead>
+      <DocH1>Roles & Permissions</DocH1>
+      <DocLead>A dynamic role system — administrators create their own roles from the panel, no code changes required.</DocLead>
 
-      <DocH2>Rol Oluşturma</DocH2>
-      <DocStep number={1} title="Roller & Yetkiler sayfasına gidin"><DocCode>roles.manage</DocCode> yetkisi gerekir.</DocStep>
-      <DocStep number={2} title="Yeni Rol butonuna tıklayın">Rol adı ve açıklama girin.</DocStep>
-      <DocStep number={3} title="Yetki Matrisi'ni doldurun">Modül bazlı yetkileri checkbox ile seçin.</DocStep>
-      <DocStep number={4} title="Kaydedin">Kullanıcılara bu rolü atayabilirsiniz.</DocStep>
+      <DocH2>Creating a Role</DocH2>
+      <DocStep number={1} title="Go to Roles & Permissions">Requires the <DocCode>roles.manage</DocCode> permission.</DocStep>
+      <DocStep number={2} title="Click New Role">Enter a role name and description.</DocStep>
+      <DocStep number={3} title="Fill in the permission matrix">Tick the permissions for each module.</DocStep>
+      <DocStep number={4} title="Save">You can now assign this role to users.</DocStep>
 
-      <DocH2>Yetki Listesi</DocH2>
+      <DocH2>Permission List</DocH2>
       <DocTable
-        headers={["Modül", "Yetkiler"]}
+        headers={["Module", "Permissions"]}
         rows={[
           ["Pages", "view · create · edit · delete · publish"],
           ["PageModels", "view · create · edit · delete"],
@@ -385,17 +385,17 @@ function SectionRoles() {
       />
 
       <DocWarning>
-        <strong>SuperAdmin</strong> sistem rolüdür — silinemez, yetkileri değiştirilemez. Tüm yetkilere otomatik sahiptir.
+        <strong>SuperAdmin</strong> is a system role — it cannot be deleted and its permissions cannot be changed. It automatically has every permission.
       </DocWarning>
 
-      <DocH2>Kullanıcıya Rol Atama</DocH2>
-      <DocStep number={1} title="Kullanıcılar sayfasına gidin">Sol menüden <strong>Kullanıcılar</strong>'ı seçin.</DocStep>
-      <DocStep number={2} title="Rol Ata ikonuna tıklayın">Kullanıcı satırındaki 👤 ikonuna tıklayın.</DocStep>
-      <DocStep number={3} title="Rolleri seçin">Birden fazla rol seçilebilir — yetkiler birleştirilir.</DocStep>
-      <DocStep number={4} title="Kaydedin">Değişiklikler sonraki girişte geçerli olur.</DocStep>
+      <DocH2>Assigning Roles to a User</DocH2>
+      <DocStep number={1} title="Go to Users">Select <strong>Users</strong> from the left menu.</DocStep>
+      <DocStep number={2} title="Click the Assign Roles icon">Click the 👤 icon on the user's row.</DocStep>
+      <DocStep number={3} title="Select roles">Multiple roles can be selected — their permissions are combined.</DocStep>
+      <DocStep number={4} title="Save">Changes take effect on the user's next sign-in.</DocStep>
 
       <DocInfo>
-        JWT token'ına kullanıcının tüm permission key'leri claim olarak gömülür. Rol değişikliği sonraki giriş/token yenileme sonrası aktif olur.
+        All of the user's permission keys are embedded in the JWT as claims. Role changes take effect after the next sign-in or token refresh.
       </DocInfo>
     </div>
   );
@@ -404,40 +404,43 @@ function SectionRoles() {
 function SectionSettings() {
   return (
     <div>
-      <DocH1>Sistem Ayarları</DocH1>
-      <DocLead>Sol menüden Ayarlar'a girerek 5 farklı sekmeyi yapılandırabilirsiniz.</DocLead>
+      <DocH1>System Settings</DocH1>
+      <DocLead>Open Settings from the left menu to configure 5 different tabs.</DocLead>
 
       <DocTable
-        headers={["Sekme", "İçerik"]}
+        headers={["Tab", "Contents"]}
         rows={[
-          ["Genel", "Site adı, logo, favicon, iletişim bilgileri, Site URL, abonelik sistemi açma/kapama, iletişim formu otomatik yanıt"],
-          ["SEO", "Title şablonu, meta description, OG image, Google Analytics / GTM ID"],
-          ["SMTP", "E-posta sunucusu yapılandırması — şifre şifreli saklanır"],
-          ["Yerelleştirme", "Varsayılan dil, tarih formatı, zaman dilimi"],
-          ["Tema", "Ana renk ve font"],
+          ["General", "Site name, logo, favicon, contact info, Site URL, subscription on/off, contact form auto-reply"],
+          ["SEO", "Title template, meta description, OG image, Google Analytics / GTM ID"],
+          ["SMTP", "Mail server configuration — the password is stored encrypted"],
+          ["Localization", "Default content language, date format, time zone"],
+          ["Theme", "Primary color and font"],
         ]}
       />
 
-      <DocH2>Genel Sekmesi — Özel Alanlar</DocH2>
+      <DocH2>General Tab — Special Fields</DocH2>
       <DocTable
-        headers={["Alan", "Açıklama"]}
+        headers={["Field", "Description"]}
         rows={[
-          ["Site URL", "Frontend sitenizin tam adresi (örn. https://www.sirket.com). İçerik editöründeki Önizle butonu bu URL'yi kullanır."],
-          ["Abonelik Sistemi", "Kapatılırsa yeni abonelik kaydı engellenir (503). Mevcut aboneler silinmez."],
-          ["İletişim Formu Otomatik Yanıt", "Açıkken, iletişim formu doldurulduğunda gönderene otomatik bir teşekkür maili gider."],
+          ["Site URL", "Full address of your frontend site (e.g. https://www.company.com). The Preview button in the content editor uses this URL."],
+          ["Subscription System", "When turned off, new subscriptions are blocked (503). Existing subscribers are kept."],
+          ["Contact Form Auto-Reply", "When on, an automatic thank-you email is sent to whoever submits the contact form."],
         ]}
       />
 
-      <DocH2>SMTP Şifre Güvenliği</DocH2>
+      <DocH2>SMTP Password Security</DocH2>
       <DocInfo>
-        SMTP şifresi AES-256 ile şifrelenip veritabanında saklanır. Panelde her zaman <DocCode>••••••</DocCode> olarak görünür.
-        Değiştirmek istemiyorsanız alanı boş bırakın — mevcut şifre korunur.
+        The SMTP password is encrypted with AES-256 and stored in the database. It is always shown as <DocCode>••••••</DocCode> in the panel.
+        Leave the field empty if you don't want to change it — the existing password is kept.
       </DocInfo>
 
-      <DocH2>Dil Ekleme</DocH2>
-      <DocStep number={1} title="Ayarlar → Diller sayfasına gidin" />
-      <DocStep number={2} title="Dil Ekle butonuna tıklayın">Dil kodu (örn. <DocCode>en</DocCode>), ad ve bayrak emoji girin.</DocStep>
-      <DocStep number={3} title="Kaydedin">Yeni dil, içerik formlarında otomatik tab olarak görünür.</DocStep>
+      <DocH2>Adding a Content Language</DocH2>
+      <DocInfo>
+        The admin panel itself is English-only. Languages added here apply to your site content.
+      </DocInfo>
+      <DocStep number={1} title="Go to Settings → Languages" />
+      <DocStep number={2} title="Click Add Language">Enter the language code (e.g. <DocCode>de</DocCode>), name and flag emoji.</DocStep>
+      <DocStep number={3} title="Save">The new language automatically appears as a tab in content forms and menu editors.</DocStep>
     </div>
   );
 }
@@ -445,35 +448,35 @@ function SectionSettings() {
 function SectionMenus() {
   return (
     <div>
-      <DocH1>Menü Yönetimi</DocH1>
-      <DocLead>4 ayrı menü bağımsız olarak yönetilir; masaüstü ve mobil için farklı yapılar tanımlanabilir.</DocLead>
+      <DocH1>Menu Management</DocH1>
+      <DocLead>4 separate menus are managed independently, so desktop and mobile can have different structures.</DocLead>
 
       <DocTable
-        headers={["Menü Anahtarı", "Kullanım Yeri"]}
+        headers={["Menu Key", "Used For"]}
         rows={[
-          ["navbar-desktop", "Masaüstü üst navigasyon"],
-          ["navbar-mobile",  "Mobil hamburger menü"],
-          ["footer-desktop", "Masaüstü footer"],
-          ["footer-mobile",  "Mobil footer"],
+          ["navbar-desktop", "Desktop top navigation"],
+          ["navbar-mobile",  "Mobile hamburger menu"],
+          ["footer-desktop", "Desktop footer"],
+          ["footer-mobile",  "Mobile footer"],
         ]}
       />
 
-      <DocH2>Menü Öğesi Özellikleri</DocH2>
+      <DocH2>Menu Item Properties</DocH2>
       <DocTable
-        headers={["Alan", "Açıklama"]}
+        headers={["Field", "Description"]}
         rows={[
-          ["Etiket", "Her dilde ayrı metin (TR / EN vb.)"],
-          ["Link Tipi", "page (dahili slug) · external (URL) · category"],
-          ["Hedef", "Slug veya tam URL"],
-          ["İkon", "Lucide ikon adı (opsiyonel)"],
-          ["Yeni Sekme", "_blank olarak açılır mı?"],
-          ["Alt Öğeler", "İç içe hiyerarşi — sürükle-bırak ile sıralama"],
+          ["Label", "Separate text for each active content language"],
+          ["Link Type", "page (internal slug) · external (URL) · category"],
+          ["Target", "Slug or full URL"],
+          ["Icon", "Lucide icon name (optional)"],
+          ["New Tab", "Whether it opens as _blank"],
+          ["Sub Items", "Nested hierarchy — reorder with drag & drop"],
         ]}
       />
 
       <DocTip>
-        Öğeleri <strong>açıp kapatarak</strong> düzenleyebilir, <strong>Alt Öğeler</strong> ekleyerek dropdown menü oluşturabilirsiniz.
-        Değişiklikler <strong>Kaydet</strong> butonuna basılana kadar uygulanmaz.
+        <strong>Expand</strong> items to edit them, and add <strong>Sub Items</strong> to build dropdown menus.
+        Changes are not applied until you click <strong>Save</strong>.
       </DocTip>
     </div>
   );
@@ -482,56 +485,56 @@ function SectionMenus() {
 function SectionContact() {
   return (
     <div>
-      <DocH1>İletişim & Mail</DocH1>
+      <DocH1>Contact & Mail</DocH1>
       <DocLead>
-        Sitenizin iletişim formundan gelen mesajları yönetin, tek tek veya tüm abonelere toplu mail gönderin,
-        tekrar kullanılabilir mail şablonları oluşturun.
+        Manage messages from your site's contact form, send mail to individuals or to all subscribers,
+        and create reusable mail templates.
       </DocLead>
 
-      <DocH2>İletişim Mesajları</DocH2>
+      <DocH2>Contact Messages</DocH2>
       <DocP>
-        Sol menüdeki <strong>İletişim</strong> sayfasında ziyaretçilerin iletişim formundan gönderdiği mesajları görürsünüz.
-        Okunmamış mesajlar kalın yazıyla işaretlidir.
+        The <strong>Contact Messages</strong> page in the left menu shows the messages visitors sent through the contact form.
+        Unread messages are shown in bold.
       </DocP>
-      <DocStep number={1} title="Mesajı açın">Listeden bir mesaja tıklayın — sağ panelde içerik görünür, mesaj otomatik okundu olarak işaretlenir.</DocStep>
-      <DocStep number={2} title="Yanıtlayın"><DocCode>Yanıtla</DocCode> butonuna tıklayarak direkt o kişiye mail gönderin.</DocStep>
-      <DocStep number={3} title="Silin">İşi biten mesajları çöp kutusu ikonuyla kaldırın.</DocStep>
+      <DocStep number={1} title="Open a message">Click a message in the list — its content appears in the right panel and it is marked as read automatically.</DocStep>
+      <DocStep number={2} title="Reply">Click <DocCode>Reply</DocCode> to send an email directly to that person.</DocStep>
+      <DocStep number={3} title="Delete">Remove handled messages with the trash icon.</DocStep>
 
-      <DocH2>Otomatik Yanıt</DocH2>
+      <DocH2>Auto-Reply</DocH2>
       <DocP>
-        İletişim formu doldurulduğunda ziyaretçiye otomatik bir teşekkür maili gönderilebilir.
+        An automatic thank-you email can be sent to visitors when they submit the contact form.
       </DocP>
-      <DocStep number={1} title="Ayarlar → Genel sekmesine gidin" />
-      <DocStep number={2} title="İletişim Formu Otomatik Yanıt toggle'ını açın">Konu ve HTML içeriği alanları belirir.</DocStep>
-      <DocStep number={3} title="Konu ve içeriği doldurun">HTML formatında bir yanıt metni yazabilirsiniz.</DocStep>
-      <DocStep number={4} title="Kaydedin">Bundan sonra gelen her iletişim formuna otomatik yanıt gider.</DocStep>
+      <DocStep number={1} title="Go to Settings → General" />
+      <DocStep number={2} title="Turn on the Contact Form Auto-Reply toggle">The subject and HTML content fields appear.</DocStep>
+      <DocStep number={3} title="Fill in subject and content">You can write the reply in HTML.</DocStep>
+      <DocStep number={4} title="Save">From now on, every contact form submission gets an automatic reply.</DocStep>
 
       <DocWarning>
-        Otomatik yanıt gönderilebilmesi için <strong>Ayarlar → SMTP</strong> sekmesinin doğru yapılandırılmış olması gerekir.
+        <strong>Settings → SMTP</strong> must be configured correctly for auto-replies to be sent.
       </DocWarning>
 
-      <DocH2>Mail Gönder</DocH2>
+      <DocH2>Send Mail</DocH2>
       <DocP>
-        Sol menüdeki <strong>Mail Gönder</strong> sayfasından belirli kişilere ya da tüm aktif abonelere mail gönderebilirsiniz.
+        From the <strong>Send Mail</strong> page in the left menu you can email specific people or all active subscribers.
       </DocP>
       <DocTable
-        headers={["Özellik", "Açıklama"]}
+        headers={["Feature", "Description"]}
         rows={[
-          ["Çoklu alıcı", "Alıcı satırı ekleyip birden fazla kişiye aynı anda gönderin"],
-          ["Şablon Yükle", "Kayıtlı şablonlardan birini seçerek konu ve içeriği otomatik doldurun"],
-          ["Tüm Abonelere", "Aktif abonelerin tamamına toplu mail gönderir — onay istenir"],
-          ["TipTap editör", "Kalın, başlık, liste gibi zengin metin biçimlendirmeleri desteklenir"],
-          ["Gönderim geçmişi", "Oturum içinde gönderilen maillerin özeti sayfanın altında görünür"],
+          ["Multiple recipients", "Add recipient rows to send to several people at once"],
+          ["Load Template", "Pick a saved template to fill in subject and content automatically"],
+          ["All Subscribers", "Sends a bulk mail to every active subscriber — asks for confirmation"],
+          ["TipTap editor", "Rich text formatting such as bold, headings and lists"],
+          ["Send history", "A summary of mails sent during this session is shown at the bottom of the page"],
         ]}
       />
 
-      <DocH2>Mail Şablonları</DocH2>
+      <DocH2>Mail Templates</DocH2>
       <DocP>
-        Sık kullandığınız konu + içerik kombinasyonlarını şablon olarak kaydedin. Sol menüdeki <strong>Mail Şablonları</strong> sayfasından yönetilir.
+        Save subject + content combinations you use often as templates. They are managed on the <strong>Mail Templates</strong> page in the left menu.
       </DocP>
-      <DocStep number={1} title="Mail Şablonları sayfasına gidin">Sol menüden İletişim grubu altındaki <strong>Mail Şablonları</strong>'nı seçin.</DocStep>
-      <DocStep number={2} title="Yeni Şablon oluşturun">Ad, konu ve HTML içeriği girin.</DocStep>
-      <DocStep number={3} title="Mail Gönder sayfasında kullanın"><DocCode>Şablon Yükle</DocCode> butonuna tıklayıp şablonu seçin — konu ve içerik otomatik dolar.</DocStep>
+      <DocStep number={1} title="Go to Mail Templates">Select <strong>Mail Templates</strong> under the Communication group in the left menu.</DocStep>
+      <DocStep number={2} title="Create a new template">Enter a name, subject and HTML content.</DocStep>
+      <DocStep number={3} title="Use it on the Send Mail page">Click <DocCode>Load Template</DocCode> and pick the template — subject and content are filled in automatically.</DocStep>
     </div>
   );
 }
@@ -539,58 +542,58 @@ function SectionContact() {
 function SectionSubscribers() {
   return (
     <div>
-      <DocH1>Aboneler</DocH1>
+      <DocH1>Subscribers</DocH1>
       <DocLead>
-        Sitenizin abonelik formunu dolduran kişilerin listesi burada tutulur.
-        Abonelik sistemi açık/kapalı olarak yönetilebilir.
+        People who fill in your site's subscription form are listed here.
+        The subscription system can be turned on or off.
       </DocLead>
 
-      <DocH2>Abonelik Sistemi Ayarı</DocH2>
-      <DocStep number={1} title="Ayarlar → Genel sekmesine gidin" />
-      <DocStep number={2} title="Abonelik Sistemi toggle'ını açın veya kapatın">
-        Kapalıyken <DocCode>POST /api/public/subscribe</DocCode> endpoint'i <DocCode>503</DocCode> döner,
-        yeni abonelik kaydı yapılamaz.
+      <DocH2>Subscription System Setting</DocH2>
+      <DocStep number={1} title="Go to Settings → General" />
+      <DocStep number={2} title="Turn the Subscription System toggle on or off">
+        While off, the <DocCode>POST /api/public/subscribe</DocCode> endpoint returns <DocCode>503</DocCode>
+        and no new subscriptions can be created.
       </DocStep>
 
       <DocTip>
-        Abonelik kapalıyken mevcut aboneler silinmez; sadece yeni kayıt engellenir.
+        Turning subscriptions off does not delete existing subscribers; it only blocks new sign-ups.
       </DocTip>
 
-      <DocH2>Abone Listesi</DocH2>
+      <DocH2>Subscriber List</DocH2>
       <DocP>
-        Sol menüden <strong>Aboneler</strong>'e gidin. Aktif / İptal / Tümü filtreleriyle listeyi daraltabilirsiniz.
+        Go to <strong>Subscribers</strong> in the left menu. Use the Active / Cancelled / All filters to narrow the list.
       </DocP>
       <DocTable
-        headers={["Sütun", "Açıklama"]}
+        headers={["Column", "Description"]}
         rows={[
-          ["E-posta", "Abonenin e-posta adresi"],
-          ["Ad", "Opsiyonel — formda isim girilmişse"],
-          ["Durum", "Aktif (yeşil) / İptal (gri)"],
-          ["Kayıt Tarihi", "Aboneliğin oluşturulduğu tarih"],
+          ["Email", "The subscriber's email address"],
+          ["Name", "Optional — if a name was entered in the form"],
+          ["Status", "Active (green) / Cancelled (gray)"],
+          ["Subscribed At", "When the subscription was created"],
         ]}
       />
 
-      <DocH2>Toplu Mail Gönderimi</DocH2>
+      <DocH2>Bulk Mail</DocH2>
       <DocP>
-        <strong>Mail Gönder</strong> sayfasındaki <DocCode>Tüm Abonelere</DocCode> butonu,
-        durumu <em>Aktif</em> olan tüm abonelere aynı maili gönderir.
-        Gönderim başlamadan önce onay kutusu çıkar.
+        The <DocCode>All Subscribers</DocCode> button on the <strong>Send Mail</strong> page
+        sends the same mail to every subscriber whose status is <em>Active</em>.
+        A confirmation dialog is shown before sending starts.
       </DocP>
 
-      <DocH2>Abonelik Kaldırma (Unsubscribe)</DocH2>
+      <DocH2>Unsubscribing</DocH2>
       <DocP>
-        Ziyaretçiler <DocCode>POST /api/public/unsubscribe</DocCode> endpoint'ini çağırarak
-        aboneliklerini iptal edebilir. Panel üzerinden de abone kaydını silebilirsiniz.
+        Visitors can cancel their subscription by calling the <DocCode>POST /api/public/unsubscribe</DocCode> endpoint.
+        You can also delete a subscriber from the panel.
       </DocP>
 
-      <DocH2>Public API Endpoint'leri</DocH2>
+      <DocH2>Public API Endpoints</DocH2>
       <DocCodeBlock>{`POST /api/public/subscribe
 Body: { "email": "...", "fullName": "..." }
-→ Abonelik oluşturur (sistem kapalıysa 503 döner)
+→ Creates a subscription (returns 503 if the system is off)
 
 POST /api/public/unsubscribe
 Body: { "email": "..." }
-→ Aboneliği iptal eder`}</DocCodeBlock>
+→ Cancels the subscription`}</DocCodeBlock>
     </div>
   );
 }
@@ -599,57 +602,57 @@ function SectionApi() {
   return (
     <div>
       <DocH1>Public API</DocH1>
-      <DocLead>Frontend uygulamanız bu endpoint'ler üzerinden CMS içeriğini tüketir. Authentication gerekmez, 5 dakika cache'lenir.</DocLead>
+      <DocLead>Your frontend consumes CMS content through these endpoints. No authentication required; responses are cached for 5 minutes.</DocLead>
 
-      <DocH2>Endpoint'ler</DocH2>
-      <DocCodeBlock>{`GET /api/public/pages/{modelKey}/{slug}?lang=tr
-    → Tek sayfa içeriği (her istek ViewCount'u artırır)
+      <DocH2>Endpoints</DocH2>
+      <DocCodeBlock>{`GET /api/public/pages/{modelKey}/{slug}?lang=en
+    → Single page content (each request increments ViewCount)
 
-GET /api/public/pages/{modelKey}?lang=tr&page=1&pageSize=10
-    → Yayındaki sayfa listesi (blog index vb.)
+GET /api/public/pages/{modelKey}?lang=en&page=1&pageSize=10
+    → List of published pages (blog index, etc.)
 
-GET /api/public/menus/{key}?lang=tr
-    → Menü ağacı (navbar-desktop, footer-mobile vb.)
+GET /api/public/menus/{key}?lang=en
+    → Menu tree (navbar-desktop, footer-mobile, etc.)
 
-GET /api/public/settings?lang=tr
-    → Genel ayarlar, SEO defaults, sosyal linkler, tema
+GET /api/public/settings?lang=en
+    → General settings, SEO defaults, social links, theme
 
 GET /api/public/languages
-    → Aktif diller listesi`}</DocCodeBlock>
+    → List of active content languages`}</DocCodeBlock>
 
-      <DocH2>Örnek İstek & Yanıt</DocH2>
-      <DocCodeBlock>{`// İstek
-fetch("/api/public/pages/blog-post/yapay-zeka-nedir?lang=tr")
+      <DocH2>Example Request & Response</DocH2>
+      <DocCodeBlock>{`// Request
+fetch("/api/public/pages/blog-post/what-is-ai?lang=en")
 
-// Yanıt
+// Response
 {
   "id": "3fa85f64-...",
   "modelKey": "blog-post",
-  "slug": "yapay-zeka-nedir",
+  "slug": "what-is-ai",
   "contentJson": {
-    "tr": {
-      "hero": { "title": "Yapay Zeka Nedir?", "image": { "url": "/uploads/..." } }
+    "en": {
+      "hero": { "title": "What Is AI?", "image": { "url": "/uploads/..." } }
     }
   },
   "seoMetaJson": {
-    "tr": { "title": "Yapay Zeka Nedir? | Blog", "description": "..." }
+    "en": { "title": "What Is AI? | Blog", "description": "..." }
   },
   "viewCount": 142,
   "publishedAt": "2026-06-13T10:00:00Z"
 }`}</DocCodeBlock>
 
       <DocInfo>
-        Public endpoint'ler <strong>5 dakika output cache</strong> ile korunur. Yeni içerik yayınladıktan sonra
-        en fazla 5 dakika içinde görünür olur.
+        Public endpoints use a <strong>5-minute output cache</strong>. Newly published content becomes visible
+        within 5 minutes at most.
       </DocInfo>
 
       <DocH2>Admin API</DocH2>
       <DocTable
-        headers={["Prefix", "Kimlik Doğrulama", "Açıklama"]}
+        headers={["Prefix", "Authentication", "Description"]}
         rows={[
-          ["/api/admin/*", "JWT Bearer token zorunlu", "Panel operasyonları (CRUD, upload, ayarlar)"],
-          ["/api/public/*", "Gerekmez", "Frontend tüketimi için read-only"],
-          ["/api/auth/*", "Gerekmez", "Login, refresh token, logout"],
+          ["/api/admin/*", "JWT Bearer token required", "Panel operations (CRUD, upload, settings)"],
+          ["/api/public/*", "Not required", "Read-only, for frontend consumption"],
+          ["/api/auth/*", "Not required", "Login, refresh token, logout"],
         ]}
       />
     </div>
@@ -675,14 +678,14 @@ export default function DocsPage() {
 
   return (
     <>
-      <PanelHelmet title="Dokümantasyon" />
+      <PanelHelmet title="Documentation" />
 
       <div className="flex gap-6 min-h-[calc(100vh-8rem)]">
         {/* Sidebar nav */}
         <nav className="w-56 shrink-0">
           <div className="sticky top-0 space-y-0.5">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 mb-3">
-              Konular
+              Topics
             </p>
             {SECTIONS.map(({ id, label, icon: Icon }) => (
               <button

@@ -37,14 +37,14 @@ export default function AssetField({ field, value, onChange }) {
             variant="ghost"
             size="icon"
             onClick={() => onChange(null)}
-            title="Kaldır"
+            title="Remove"
           >
             <X size={14} />
           </Button>
         </div>
       ) : (
         <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-          Dosya Seç…
+          Select File…
         </Button>
       )}
 
@@ -54,13 +54,13 @@ export default function AssetField({ field, value, onChange }) {
           className="text-xs text-primary underline underline-offset-2 mt-0.5"
           onClick={() => setOpen(true)}
         >
-          {value ? "Değiştir" : ""}
+          {value ? "Change" : ""}
         </button>
       )}
 
       {value && (
         <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(true)}>
-          Değiştir
+          Change
         </Button>
       )}
 

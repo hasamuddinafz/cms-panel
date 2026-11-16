@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Settings, Globe, Mail, Search, Palette } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -17,25 +16,24 @@ import {
 } from "../features/settings/settingsApi";
 
 export default function SettingsPage() {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("general");
   const { data: settings, isLoading } = useGetSettingsQuery();
 
   const TABS = [
-    { id: "general",      label: t("settings.general"),      icon: Settings },
-    { id: "seo",          label: t("settings.seo"),          icon: Search },
-    { id: "smtp",         label: t("settings.smtp"),         icon: Mail },
-    { id: "localization", label: t("settings.localization"), icon: Globe },
-    { id: "theme",        label: t("settings.theme"),        icon: Palette },
+    { id: "general",      label: "General",      icon: Settings },
+    { id: "seo",          label: "SEO",          icon: Search },
+    { id: "smtp",         label: "SMTP",         icon: Mail },
+    { id: "localization", label: "Localization", icon: Globe },
+    { id: "theme",        label: "Theme",        icon: Palette },
   ];
 
-  if (isLoading) return <div className="text-sm text-muted-foreground">{t("common.loading")}</div>;
+  if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
 
   const props = { settings };
 
   return (
     <>
-      <PanelHelmet title={t("settings.title")} />
+      <PanelHelmet title="Settings" />
       <div className="flex gap-6">
         <nav className="w-44 shrink-0 space-y-1">
           {TABS.map(({ id, label, icon: Icon }) => (
@@ -59,7 +57,6 @@ export default function SettingsPage() {
 }
 
 function GeneralTab({ settings }) {
-  const { t } = useTranslation();
   const raw = settings?.general ? (typeof settings.general === "string" ? JSON.parse(settings.general) : settings.general) : {};
   const [form, setForm] = useState({ siteName: "", email: "", phone: "", address: "", siteBaseUrl: "", subscriptionEnabled: false, contactAutoReplyEnabled: false, contactAutoReplySubject: "", contactAutoReplyBody: "", ...raw });
   const [update, { isLoading }] = useUpdateGeneralMutation();
@@ -68,44 +65,44 @@ function GeneralTab({ settings }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try { await update(form).unwrap(); toast.success(t("settingsExtra.generalSaved")); }
-    catch { toast.error(t("settingsExtra.saveFailed")); }
+    try { await update(form).unwrap(); toast.success("General settings saved."); }
+    catch { toast.error("Save failed."); }
   }
 
   return (
-    <SettingsForm title={t("settingsExtra.generalTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
-      <Field label={t("settings.siteName")} placeholder={t("settingsExtra.siteNamePlaceholder", "e.g. My Company Ltd.")} value={form.siteName} onChange={(v) => setForm((f) => ({ ...f, siteName: v }))} />
-      <Field label={t("settings.email")} placeholder="info@sirket.com" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
-      <Field label={t("settings.phone")} placeholder="+90 212 000 00 00" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-      <Field label={t("settings.address")} placeholder={t("settingsExtra.addressPlaceholder", "City, Country")} value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
-      <Field label={t("settingsExtra.siteBaseUrl", "Site URL")} placeholder="https://www.sirket.com" value={form.siteBaseUrl} onChange={(v) => setForm((f) => ({ ...f, siteBaseUrl: v }))} />
+    <SettingsForm title="General Settings" onSubmit={handleSubmit} isLoading={isLoading}>
+      <Field label="Site Name" placeholder="e.g. My Company Ltd." value={form.siteName} onChange={(v) => setForm((f) => ({ ...f, siteName: v }))} />
+      <Field label="Email" placeholder="info@company.com" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
+      <Field label="Phone" placeholder="+90 212 000 00 00" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+      <Field label="Address" placeholder="City, Country" value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
+      <Field label="Site URL" placeholder="https://www.company.com" value={form.siteBaseUrl} onChange={(v) => setForm((f) => ({ ...f, siteBaseUrl: v }))} />
       {/* Abonelik toggle */}
       <ToggleSetting
-        label={t("settingsExtra.subscriptionEnabled", "Abonelik Sistemi")}
-        description={t("settingsExtra.subscriptionEnabledDesc", "Kapalıyken /api/public/subscribe endpoint'i 503 döner, yeni abonelik alınmaz.")}
+        label="Subscription System"
+        description="When disabled, /api/public/subscribe returns 503 and no new subscriptions are accepted."
         checked={form.subscriptionEnabled}
         onChange={() => setForm((f) => ({ ...f, subscriptionEnabled: !f.subscriptionEnabled }))}
       />
-      {/* İletişim formu otomatik yanıt */}
+      {/* Contact form auto-reply */}
       <ToggleSetting
-        label={t("settingsExtra.contactAutoReply", "İletişim Formu Otomatik Yanıt")}
-        description={t("settingsExtra.contactAutoReplyDesc", "Ziyaretçi iletişim formu gönderdiğinde otomatik bir teşekkür maili gönderilir.")}
+        label="Contact Form Auto-Reply"
+        description="When a visitor submits the contact form, an automatic thank-you email is sent."
         checked={form.contactAutoReplyEnabled}
         onChange={() => setForm((f) => ({ ...f, contactAutoReplyEnabled: !f.contactAutoReplyEnabled }))}
       />
       {form.contactAutoReplyEnabled && (
         <>
           <Field
-            label={t("settingsExtra.contactAutoReplySubject", "Otomatik Yanıt Konusu")}
-            placeholder={t("settingsExtra.autoReplySubjectPlaceholder", "Your message has been received — thank you!")}
+            label="Auto-Reply Subject"
+            placeholder="Your message has been received — thank you!"
             value={form.contactAutoReplySubject}
             onChange={(v) => setForm((f) => ({ ...f, contactAutoReplySubject: v }))}
           />
           <div className="space-y-1.5">
-            <Label>{t("settingsExtra.contactAutoReplyBody", "Otomatik Yanıt İçeriği (HTML)")}</Label>
+            <Label>Auto-Reply Content (HTML)</Label>
             <textarea
               rows={5}
-              placeholder={t("settingsExtra.autoReplyBodyPlaceholder", "<p>Hello, your message has been received. We will get back to you shortly.</p>")}
+              placeholder="<p>Hello, your message has been received. We will get back to you shortly.</p>"
               value={form.contactAutoReplyBody}
               onChange={(e) => setForm((f) => ({ ...f, contactAutoReplyBody: e.target.value }))}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring resize-y"
@@ -118,7 +115,6 @@ function GeneralTab({ settings }) {
 }
 
 function SeoTab({ settings }) {
-  const { t } = useTranslation();
   const raw = settings?.seo ? (typeof settings.seo === "string" ? JSON.parse(settings.seo) : settings.seo) : {};
   const [form, setForm] = useState({ titleTemplate: "", defaultDescription: "", googleAnalyticsId: "", googleTagManagerId: "", ...raw });
   const [update, { isLoading }] = useUpdateSeoMutation();
@@ -127,22 +123,21 @@ function SeoTab({ settings }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try { await update(form).unwrap(); toast.success(t("settingsExtra.seoSaved")); }
-    catch { toast.error(t("settingsExtra.saveFailed")); }
+    try { await update(form).unwrap(); toast.success("SEO settings saved."); }
+    catch { toast.error("Save failed."); }
   }
 
   return (
-    <SettingsForm title={t("settingsExtra.seoTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
-      <Field label={t("settingsExtra.titleTemplate")} placeholder="| Site Adı" value={form.titleTemplate} onChange={(v) => setForm((f) => ({ ...f, titleTemplate: v }))} />
-      <Field label={t("settingsExtra.defaultDesc")} placeholder={t("settingsExtra.defaultDescPlaceholder", "150-character description of your site")} value={form.defaultDescription} onChange={(v) => setForm((f) => ({ ...f, defaultDescription: v }))} />
-      <Field label={t("settingsExtra.analyticsId")} placeholder="G-XXXXXXXXXX" value={form.googleAnalyticsId} onChange={(v) => setForm((f) => ({ ...f, googleAnalyticsId: v }))} />
-      <Field label={t("settingsExtra.tagManagerId")} placeholder="GTM-XXXXXXX" value={form.googleTagManagerId} onChange={(v) => setForm((f) => ({ ...f, googleTagManagerId: v }))} />
+    <SettingsForm title="SEO Settings" onSubmit={handleSubmit} isLoading={isLoading}>
+      <Field label="Title Template" placeholder="| Site Name" value={form.titleTemplate} onChange={(v) => setForm((f) => ({ ...f, titleTemplate: v }))} />
+      <Field label="Default Meta Description" placeholder="150-character description of your site" value={form.defaultDescription} onChange={(v) => setForm((f) => ({ ...f, defaultDescription: v }))} />
+      <Field label="Google Analytics ID" placeholder="G-XXXXXXXXXX" value={form.googleAnalyticsId} onChange={(v) => setForm((f) => ({ ...f, googleAnalyticsId: v }))} />
+      <Field label="Google Tag Manager ID" placeholder="GTM-XXXXXXX" value={form.googleTagManagerId} onChange={(v) => setForm((f) => ({ ...f, googleTagManagerId: v }))} />
     </SettingsForm>
   );
 }
 
 function SmtpTab({ settings }) {
-  const { t } = useTranslation();
   const raw = settings?.smtp ? (typeof settings.smtp === "string" ? JSON.parse(settings.smtp) : settings.smtp) : {};
   const [form, setForm] = useState({ host: "", port: 587, username: "", password: "", fromEmail: "", fromName: "", useSsl: true, ...raw });
   const [update, { isLoading }] = useUpdateSmtpMutation();
@@ -151,12 +146,12 @@ function SmtpTab({ settings }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try { await update(form).unwrap(); toast.success(t("settingsExtra.smtpSaved")); }
-    catch { toast.error(t("settingsExtra.saveFailed")); }
+    try { await update(form).unwrap(); toast.success("SMTP settings saved."); }
+    catch { toast.error("Save failed."); }
   }
 
   return (
-    <SettingsForm title={t("settingsExtra.smtpTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
+    <SettingsForm title="SMTP Settings" onSubmit={handleSubmit} isLoading={isLoading}>
       <div className="grid grid-cols-3 gap-3">
         <div className="col-span-2 space-y-1.5">
           <Label>Host</Label>
@@ -167,46 +162,44 @@ function SmtpTab({ settings }) {
           <Input type="number" value={form.port} onChange={(e) => setForm((f) => ({ ...f, port: +e.target.value }))} />
         </div>
       </div>
-      <Field label={t("settingsExtra.username")} placeholder="gönderen@gmail.com" value={form.username} onChange={(v) => setForm((f) => ({ ...f, username: v }))} />
+      <Field label="Username" placeholder="sender@example.com" value={form.username} onChange={(v) => setForm((f) => ({ ...f, username: v }))} />
       <div className="space-y-1.5">
-        <Label>{t("auth.password")} <span className="text-muted-foreground text-xs">{t("settingsExtra.passwordHint")}</span></Label>
-        <PasswordInput placeholder={t("settingsExtra.passwordPlaceholder")} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+        <Label>Password <span className="text-muted-foreground text-xs">(fill to change)</span></Label>
+        <PasswordInput placeholder="Enter new password to change" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
       </div>
-      <Field label={t("settingsExtra.fromEmail")} placeholder="noreply@sirket.com" value={form.fromEmail} onChange={(v) => setForm((f) => ({ ...f, fromEmail: v }))} />
-      <Field label={t("settingsExtra.fromName")} placeholder="NEXUS CMS" value={form.fromName} onChange={(v) => setForm((f) => ({ ...f, fromName: v }))} />
+      <Field label="From Email" placeholder="noreply@company.com" value={form.fromEmail} onChange={(v) => setForm((f) => ({ ...f, fromEmail: v }))} />
+      <Field label="From Name" placeholder="NEXUS CMS" value={form.fromName} onChange={(v) => setForm((f) => ({ ...f, fromName: v }))} />
       <label className="flex items-center gap-2 cursor-pointer text-sm">
         <input type="checkbox" checked={form.useSsl} onChange={(e) => setForm((f) => ({ ...f, useSsl: e.target.checked }))} className="rounded" />
-        {t("settingsExtra.useSsl")}
+        Use SSL
       </label>
     </SettingsForm>
   );
 }
 
 function LocalizationTab({ settings }) {
-  const { t } = useTranslation();
   const raw = settings?.localization ? (typeof settings.localization === "string" ? JSON.parse(settings.localization) : settings.localization) : {};
-  const [form, setForm] = useState({ defaultLanguage: "tr", dateFormat: "dd.MM.yyyy", timeZone: "Europe/Istanbul", ...raw });
+  const [form, setForm] = useState({ defaultLanguage: "en", dateFormat: "MM/dd/yyyy", timeZone: "UTC", ...raw });
   const [update, { isLoading }] = useUpdateLocalizationMutation();
 
   useEffect(() => { if (raw.defaultLanguage !== undefined) setForm((f) => ({ ...f, ...raw })); }, [settings]); // eslint-disable-line
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try { await update(form).unwrap(); toast.success(t("settingsExtra.localizationSaved")); }
-    catch { toast.error(t("settingsExtra.saveFailed")); }
+    try { await update(form).unwrap(); toast.success("Localization settings saved."); }
+    catch { toast.error("Save failed."); }
   }
 
   return (
-    <SettingsForm title={t("settingsExtra.localizationTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
-      <Field label={t("settingsExtra.defaultLang")} value={form.defaultLanguage} onChange={(v) => setForm((f) => ({ ...f, defaultLanguage: v }))} />
-      <Field label={t("settingsExtra.dateFormat")} placeholder="dd.MM.yyyy" value={form.dateFormat} onChange={(v) => setForm((f) => ({ ...f, dateFormat: v }))} />
-      <Field label={t("settingsExtra.timezone")} placeholder="Europe/Istanbul" value={form.timeZone} onChange={(v) => setForm((f) => ({ ...f, timeZone: v }))} />
+    <SettingsForm title="Localization" onSubmit={handleSubmit} isLoading={isLoading}>
+      <Field label="Default Language" value={form.defaultLanguage} onChange={(v) => setForm((f) => ({ ...f, defaultLanguage: v }))} />
+      <Field label="Date Format" placeholder="MM/dd/yyyy" value={form.dateFormat} onChange={(v) => setForm((f) => ({ ...f, dateFormat: v }))} />
+      <Field label="Timezone" placeholder="UTC" value={form.timeZone} onChange={(v) => setForm((f) => ({ ...f, timeZone: v }))} />
     </SettingsForm>
   );
 }
 
 function ThemeTab({ settings }) {
-  const { t } = useTranslation();
   const raw = settings?.theme ? (typeof settings.theme === "string" ? JSON.parse(settings.theme) : settings.theme) : {};
   const [form, setForm] = useState({ primaryColor: "#3b82f6", font: "Inter", ...raw });
   const [update, { isLoading }] = useUpdateThemeMutation();
@@ -215,27 +208,26 @@ function ThemeTab({ settings }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try { await update(form).unwrap(); toast.success(t("settingsExtra.themeSaved")); }
-    catch { toast.error(t("settingsExtra.saveFailed")); }
+    try { await update(form).unwrap(); toast.success("Theme settings saved."); }
+    catch { toast.error("Save failed."); }
   }
 
   return (
-    <SettingsForm title={t("settingsExtra.themeTitle")} onSubmit={handleSubmit} isLoading={isLoading}>
+    <SettingsForm title="Theme" onSubmit={handleSubmit} isLoading={isLoading}>
       <div className="space-y-1.5">
-        <Label>{t("settingsExtra.primaryColor")}</Label>
+        <Label>Primary Color</Label>
         <div className="flex items-center gap-3">
           <input type="color" value={form.primaryColor} onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))}
             className="w-10 h-10 rounded cursor-pointer border" />
           <Input value={form.primaryColor} onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))} className="w-32" />
         </div>
       </div>
-      <Field label={t("settingsExtra.font")} placeholder="Inter" value={form.font} onChange={(v) => setForm((f) => ({ ...f, font: v }))} />
+      <Field label="Font" placeholder="Inter" value={form.font} onChange={(v) => setForm((f) => ({ ...f, font: v }))} />
     </SettingsForm>
   );
 }
 
 function SettingsForm({ title, children, onSubmit, isLoading }) {
-  const { t } = useTranslation();
   return (
     <div className="rounded-xl border bg-card">
       <div className="px-5 py-4 border-b">
@@ -244,7 +236,7 @@ function SettingsForm({ title, children, onSubmit, isLoading }) {
       <form onSubmit={onSubmit} className="p-5 space-y-4">
         {children}
         <div className="flex justify-end pt-2">
-          <Button type="submit" disabled={isLoading}>{isLoading ? t("settingsExtra.saving") : t("settingsExtra.save")}</Button>
+          <Button type="submit" disabled={isLoading}>{isLoading ? "Saving…" : "Save"}</Button>
         </div>
       </form>
     </div>

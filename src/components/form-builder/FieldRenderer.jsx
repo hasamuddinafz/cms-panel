@@ -36,7 +36,7 @@ export default function FieldRenderer({ field, value, onChange, lang }) {
     default:
       return (
         <div className="text-xs text-muted-foreground border border-dashed rounded px-3 py-2">
-          Bilinmeyen alan tipi: <strong>{field.type}</strong>
+          Unknown field type: <strong>{field.type}</strong>
         </div>
       );
   }

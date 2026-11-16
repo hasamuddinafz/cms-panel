@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { UserCog, X, Check, Plus, Eye, EyeOff } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -13,7 +12,6 @@ import { useGetUserListQuery, useCreateUserMutation, useAssignRolesMutation } fr
 import { useGetRoleListQuery } from "../features/roles/rolesApi";
 
 export default function UsersPage() {
-  const { t } = useTranslation();
   const dt = useDataTable();
   const [assignModal, setAssignModal] = useState(null);
   const [createModal, setCreateModal] = useState(false);
@@ -27,25 +25,25 @@ export default function UsersPage() {
   const { onExportCsv, onExportExcel } = useExport(
     "/api/admin/users/export",
     { search: dt.queryParams.search },
-    "kullanicilar"
+    "users"
   );
 
   const columns = useMemo(() => [
     {
       id: "email",
-      header: t("users.email"),
+      header: "Email",
       accessorKey: "email",
       cell: ({ row }) => <span className="text-sm font-medium">{row.original.email}</span>,
     },
     {
       id: "fullName",
-      header: t("users.fullName"),
+      header: "Full Name",
       accessorKey: "fullName",
       cell: ({ row }) => <span className="text-sm">{row.original.fullName || "—"}</span>,
     },
     {
       id: "roles",
-      header: t("users.roles"),
+      header: "Roles",
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1">
@@ -59,7 +57,7 @@ export default function UsersPage() {
     },
     {
       id: "isActive",
-      header: t("users.isActive"),
+      header: "Active",
       accessorKey: "isActive",
       cell: ({ row }) =>
         row.original.isActive ? (
@@ -70,11 +68,11 @@ export default function UsersPage() {
     },
     {
       id: "lastLoginAt",
-      header: t("users.lastLogin"),
+      header: "Last Login",
       accessorKey: "lastLoginAt",
       cell: ({ row }) =>
         row.original.lastLoginAt
-          ? new Date(row.original.lastLoginAt).toLocaleString("tr-TR")
+          ? new Date(row.original.lastLoginAt).toLocaleString("en-US")
           : "—",
     },
     {
@@ -84,7 +82,7 @@ export default function UsersPage() {
       cell: ({ row }) => (
         <Button
           variant="ghost" size="icon"
-          title={t("usersExtra.assignRoles")}
+          title="Assign Roles"
           onClick={() => setAssignModal({
             userId: row.original.id,
             currentRoleIds: [],
@@ -95,14 +93,14 @@ export default function UsersPage() {
         </Button>
       ),
     },
-  ], [t]); // eslint-disable-line
+  ], []); // eslint-disable-line
 
   return (
     <>
-      <PanelHelmet title={t("users.title")} />
+      <PanelHelmet title="Users" />
       <div className="flex justify-end mb-4">
         <Button size="sm" className="gap-1.5" onClick={() => setCreateModal(true)}>
-          <Plus size={14} /> {t("users.new")}
+          <Plus size={14} /> New User
         </Button>
       </div>
       <DataTable
@@ -129,7 +127,6 @@ export default function UsersPage() {
 }
 
 function AssignRolesModal({ userId, userEmail, onClose }) {
-  const { t } = useTranslation();
   const { data: rolesData }     = useGetRoleListQuery({ pageSize: 100 });
   const [assignRoles, { isLoading }] = useAssignRolesMutation();
   const [selected, setSelected] = useState(new Set());
@@ -146,10 +143,10 @@ function AssignRolesModal({ userId, userEmail, onClose }) {
   async function handleSave() {
     try {
       await assignRoles({ userId, roleIds: [...selected] }).unwrap();
-      toast.success(t("usersExtra.rolesUpdated"));
+      toast.success("Roles updated.");
       onClose();
     } catch {
-      toast.error(t("usersExtra.updateError"));
+      toast.error("Update failed.");
     }
   }
 
@@ -158,7 +155,7 @@ function AssignRolesModal({ userId, userEmail, onClose }) {
       <div className="bg-background rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div>
-            <h2 className="font-semibold text-sm">{t("usersExtra.assignRoles")}</h2>
+            <h2 className="font-semibold text-sm">Assign Roles</h2>
             <p className="text-xs text-muted-foreground">{userEmail}</p>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>✕</Button>
@@ -175,16 +172,16 @@ function AssignRolesModal({ userId, userEmail, onClose }) {
               />
               <span className="text-sm">{role.name}</span>
               {role.isSystemRole && (
-                <span className="text-[10px] bg-primary/10 text-primary rounded px-1 ml-auto">{t("usersExtra.systemRole")}</span>
+                <span className="text-[10px] bg-primary/10 text-primary rounded px-1 ml-auto">SYSTEM</span>
               )}
             </label>
           ))}
         </div>
 
         <div className="flex justify-end gap-2 px-5 py-3 border-t">
-          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? t("common.saving") : t("common.save")}
+            {isLoading ? "Saving…" : "Save"}
           </Button>
         </div>
       </div>
@@ -193,7 +190,6 @@ function AssignRolesModal({ userId, userEmail, onClose }) {
 }
 
 function CreateUserModal({ onClose }) {
-  const { t } = useTranslation();
   const [form, setForm] = useState({ fullName: "", email: "", password: "", isActive: true });
   const [showPw, setShowPw] = useState(false);
   const [createUser, { isLoading }] = useCreateUserMutation();
@@ -204,10 +200,10 @@ function CreateUserModal({ onClose }) {
     e.preventDefault();
     try {
       await createUser(form).unwrap();
-      toast.success(t("usersExtra.created"));
+      toast.success("User created.");
       onClose();
     } catch (err) {
-      toast.error(err?.data?.error ?? t("usersExtra.error"));
+      toast.error(err?.data?.error ?? "An error occurred.");
     }
   }
 
@@ -215,25 +211,25 @@ function CreateUserModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-background rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="font-semibold">{t("usersExtra.newUser")}</h2>
+          <h2 className="font-semibold">New User</h2>
           <Button type="button" variant="ghost" size="icon" onClick={onClose}><X size={16} /></Button>
         </div>
 
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
           <div className="space-y-1.5">
-            <Label>{t("users.fullName")} *</Label>
-            <Input placeholder="Ahmet Yılmaz" value={form.fullName} onChange={(e) => set("fullName", e.target.value)} required />
+            <Label>Full Name *</Label>
+            <Input placeholder="John Doe" value={form.fullName} onChange={(e) => set("fullName", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
-            <Label>{t("users.email")} *</Label>
-            <Input type="email" placeholder="ahmet@sirket.com" value={form.email} onChange={(e) => set("email", e.target.value)} required />
+            <Label>Email *</Label>
+            <Input type="email" placeholder="john@company.com" value={form.email} onChange={(e) => set("email", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
-            <Label>{t("users.password")} *</Label>
+            <Label>Password *</Label>
             <div className="relative">
               <Input
                 type={showPw ? "text" : "password"}
-                placeholder="En az 6 karakter"
+                placeholder="At least 6 characters"
                 value={form.password}
                 onChange={(e) => set("password", e.target.value)}
                 required
@@ -247,13 +243,13 @@ function CreateUserModal({ onClose }) {
           </div>
           <label className="flex items-center gap-2 cursor-pointer text-sm select-none">
             <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="rounded" />
-            {t("usersExtra.userActive")}
+            User active
           </label>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? t("common.saving") : t("users.createUser")}
+              {isLoading ? "Saving…" : "Create User"}
             </Button>
           </div>
         </form>

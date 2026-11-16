@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import {
   ArrowLeft, Save, CheckCircle, Plus, X, ChevronDown, ChevronUp,
   GripVertical, ExternalLink, Upload, Image as ImageIcon, Search,
@@ -32,7 +31,6 @@ import { useGetFileListQuery, useUploadFileMutation } from "../features/media/me
    Page Editor
 ───────────────────────────────────────────────────────────────── */
 export default function PageEditorPage() {
-  const { t } = useTranslation();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -51,7 +49,7 @@ export default function PageEditorPage() {
   const { data: selectedModel } = useGetPageModelByIdQuery(selectedModelId, { skip: !selectedModelId });
 
   const activeLangs = langs.filter((l) => l.isActive);
-  const defaultLang = langs.find((l) => l.isDefault)?.code ?? activeLangs[0]?.code ?? "tr";
+  const defaultLang = langs.find((l) => l.isDefault)?.code ?? activeLangs[0]?.code ?? "en";
   const [activeLang, setActiveLang] = useState(defaultLang);
 
   useEffect(() => {
@@ -106,8 +104,8 @@ export default function PageEditorPage() {
   }
 
   async function save(andPublish = false) {
-    if (!selectedModelId) { toast.error(t("pages.selectModelRequired")); return; }
-    if (!slug.trim())     { toast.error(t("pages.slugRequired")); return; }
+    if (!selectedModelId) { toast.error("Please select a page model."); return; }
+    if (!slug.trim())     { toast.error("Slug is required."); return; }
     const body = {
       pageModelId: selectedModelId,
       slug: slug.trim(),
@@ -118,24 +116,24 @@ export default function PageEditorPage() {
       let savedId = id;
       if (isEdit) {
         await updateInstance({ id, ...body }).unwrap();
-        toast.success(t("pages.saved"));
+        toast.success("Saved.");
       } else {
         const res = await createInstance(body).unwrap();
         savedId = res.id;
-        toast.success(t("pages.created"));
+        toast.success("Content created.");
       }
       const alreadyPublished = existing?.status === "Published";
       if (andPublish && savedId && !alreadyPublished) {
         await publishPage(savedId).unwrap();
-        toast.success(t("pages.publishedSuccess"));
+        toast.success("Published!");
       }
       navigate("/pages");
     } catch (err) {
-      toast.error(err?.data?.error ?? t("common.error"));
+      toast.error(err?.data?.error ?? "An error occurred.");
     }
   }
 
-  const pageTitle = isEdit ? t("pages.edit") : t("pages.new");
+  const pageTitle = isEdit ? "Edit Content" : "New Content";
 
   return (
     <>
@@ -152,7 +150,7 @@ export default function PageEditorPage() {
             <h1 className="text-xl font-bold">{pageTitle}</h1>
             {selectedModel && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t("pages.model")}: <span className="font-medium text-foreground">{selectedModel.name}</span>
+                Model: <span className="font-medium text-foreground">{selectedModel.name}</span>
               </p>
             )}
           </div>
@@ -160,14 +158,14 @@ export default function PageEditorPage() {
         <div className="flex gap-2">
           {isEdit && slug && (
             <Button variant="ghost" size="sm" className="gap-1.5 h-9 text-muted-foreground" onClick={handlePreview}>
-              <ExternalLink size={14} /> {t("pages.preview", "Önizle")}
+              <ExternalLink size={14} /> Preview
             </Button>
           )}
           <Button variant="outline" size="sm" className="gap-1.5 h-9" onClick={() => save(false)} disabled={isBusy}>
-            <Save size={14} /> {t("pages.saveDraft")}
+            <Save size={14} /> Save Draft
           </Button>
           <Button size="sm" className="gap-1.5 h-9 px-4" onClick={() => save(true)} disabled={isBusy}>
-            <CheckCircle size={14} /> {t("pages.savePublish")}
+            <CheckCircle size={14} /> Save & Publish
           </Button>
         </div>
       </div>
@@ -178,14 +176,14 @@ export default function PageEditorPage() {
           {!selectedModelId && (
             <div className="rounded-2xl border-2 border-dashed py-20 text-center">
               <ChevronDown size={22} className="text-muted-foreground mx-auto mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">{t("pages.noSchemaModel")}</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">{t("pages.noSchemaHint")}</p>
+              <p className="text-sm font-medium text-muted-foreground">Select a page model from the right panel</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">The form will appear automatically</p>
             </div>
           )}
 
           {selectedModelId && schema.sections?.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed py-14 text-center">
-              <p className="text-sm font-medium text-muted-foreground">{t("pages.emptySchema")}</p>
+              <p className="text-sm font-medium text-muted-foreground">This model has no schema</p>
             </div>
           )}
 
@@ -227,27 +225,27 @@ export default function PageEditorPage() {
         {/* Right: settings */}
         <div className="space-y-3 sticky top-4">
           <div className="rounded-2xl border bg-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold">{t("pages.pageSettings")}</h3>
+            <h3 className="text-sm font-semibold">Page Settings</h3>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{t("pages.pageModel")} *</Label>
+              <Label className="text-xs font-medium">Page Model *</Label>
               <select
                 className="w-full border rounded-xl pl-3 pr-8 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-60"
                 value={selectedModelId}
                 onChange={(e) => { setSelectedModelId(e.target.value); setContent({}); }}
                 disabled={isEdit}>
-                <option value="">{t("pages.selectModel")}</option>
+                <option value="">— Select model —</option>
                 {modelList?.items?.map((m) => (
                   <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
               </select>
-              {isEdit && <p className="text-[11px] text-muted-foreground">{t("pages.modelLocked", "Düzenleme modunda model değiştirilemez")}</p>}
+              {isEdit && <p className="text-[11px] text-muted-foreground">Model cannot be changed in edit mode</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{t("pages.slug")} *</Label>
+              <Label className="text-xs font-medium">Slug *</Label>
               <Input
-                placeholder="ornek-slug"
+                placeholder="example-slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
               />
@@ -268,7 +266,6 @@ export default function PageEditorPage() {
    Section Block
 ───────────────────────────────────────────────────────────────── */
 function SectionBlock({ section, lang, allLangs, getFieldValue, setFieldValue, getRepeaterValue, setRepeaterValue }) {
-  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -280,7 +277,7 @@ function SectionBlock({ section, lang, allLangs, getFieldValue, setFieldValue, g
           <span className="text-sm font-semibold">{section.label ?? section.key}</span>
           {section.repeatable && (
             <span className="text-[10px] bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full px-2 py-0.5">
-              {t("pages.repeatable", "tekrarlı")}
+              repeatable
             </span>
           )}
         </div>
@@ -318,7 +315,6 @@ function SectionBlock({ section, lang, allLangs, getFieldValue, setFieldValue, g
    Repeater
 ───────────────────────────────────────────────────────────────── */
 function RepeaterField({ section, lang, items, onChange }) {
-  const { t } = useTranslation();
   function addItem() {
     const blank = {};
     section.fields?.forEach((f) => { blank[f.key] = f.type === "boolean" ? false : ""; });
@@ -329,14 +325,14 @@ function RepeaterField({ section, lang, items, onChange }) {
     <div className="space-y-3 pt-2">
       {items.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg">
-          {t("pages.noItems", "Henüz öğe yok.")}
+          No items yet.
         </p>
       )}
       {items.map((item, idx) => (
         <div key={idx} className="border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/20">
             <GripVertical size={13} className="text-muted-foreground shrink-0" />
-            <span className="text-xs font-semibold text-muted-foreground flex-1">{t("pages.item", "Öğe")} {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground flex-1">Item {idx + 1}</span>
             <button type="button" onClick={() => onChange(items.filter((_, i) => i !== idx))}
               className="text-muted-foreground hover:text-destructive transition-colors">
               <X size={13} />
@@ -358,7 +354,7 @@ function RepeaterField({ section, lang, items, onChange }) {
         </div>
       ))}
       <Button type="button" variant="outline" size="sm" className="gap-1.5 w-full" onClick={addItem}>
-        <Plus size={13} /> {t("pages.addItem")}
+        <Plus size={13} /> Add Item
       </Button>
     </div>
   );
@@ -368,21 +364,20 @@ function RepeaterField({ section, lang, items, onChange }) {
    Dynamic Field (translatable-aware)
 ───────────────────────────────────────────────────────────────── */
 function DynamicField({ field, lang, allLangs, getValue, setValue }) {
-  const { t } = useTranslation();
   const isMultiLang = allLangs.length > 1;
-  const effectiveLang = field.translatable ? lang : (allLangs[0] ?? "tr");
+  const effectiveLang = field.translatable ? lang : (allLangs[0] ?? "en");
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2 flex-wrap">
         <Label>{field.label ?? field.key}{field.required && <span className="text-destructive ml-0.5">*</span>}</Label>
         {field.translatable && isMultiLang && (
           <span className="text-[10px] bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded px-1.5 py-0.5">
-            {t("pages.translatable")}
+            translatable
           </span>
         )}
         {!field.translatable && isMultiLang && (
-          <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded px-1.5 py-0.5" title={t("pages.sharedHint", "Bu alan tüm dillerde aynı değeri gösterir")}>
-            {t("pages.shared", "paylaşımlı")}
+          <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded px-1.5 py-0.5" title="This field shows the same value for all languages">
+            shared
           </span>
         )}
       </div>
@@ -408,7 +403,6 @@ function SimpleField({ field, value, onChange }) {
    Field Input Renderer
 ───────────────────────────────────────────────────────────────── */
 function FieldInput({ field, value, onChange }) {
-  const { t } = useTranslation();
   const ph = field.label ?? field.key;
 
   switch (field.type) {
@@ -434,7 +428,7 @@ function FieldInput({ field, value, onChange }) {
       return (
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} className="w-4 h-4 rounded" />
-          <span className="text-sm text-muted-foreground">{value ? t("common.active") : t("common.passive")}</span>
+          <span className="text-sm text-muted-foreground">{value ? "Active" : "Passive"}</span>
         </label>
       );
 
@@ -543,7 +537,6 @@ function TBtn({ onClick, active, title, children }) {
    Asset Field — inline upload + media picker modal
 ───────────────────────────────────────────────────────────────── */
 function AssetField({ value, onChange }) {
-  const { t } = useTranslation();
   const [open, setOpen]       = useState(false);
   const [search, setSearch]   = useState("");
   const [page, setPage]       = useState(1);
@@ -564,9 +557,9 @@ function AssetField({ value, onChange }) {
       const res = await uploadFile(fd).unwrap();
       onChange(res.url);
       setOpen(false);
-      toast.success(t("mediaExtra.uploaded2"));
+      toast.success("File uploaded.");
     } catch {
-      toast.error(t("mediaExtra.uploadError"));
+      toast.error("Upload failed.");
     }
     e.target.value = "";
   }
@@ -598,10 +591,10 @@ function AssetField({ value, onChange }) {
         {/* Actions */}
         <div className="flex gap-2">
           <Button type="button" variant="outline" size="sm" className="gap-1.5 flex-1" onClick={() => setOpen(true)}>
-            <ImageIcon size={13} /> {t("pages.selectMedia", "Medyadan Seç")}
+            <ImageIcon size={13} /> Select from Media
           </Button>
           <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()} disabled={uploading}>
-            <Upload size={13} /> {uploading ? t("mediaExtra.uploading") : t("mediaExtra.uploadFile")}
+            <Upload size={13} /> {uploading ? "Uploading…" : "Upload File"}
           </Button>
           <input ref={fileRef} type="file" accept="image/*,application/pdf,video/*" className="hidden" onChange={handleUpload} />
         </div>
@@ -622,7 +615,7 @@ function AssetField({ value, onChange }) {
           <div className="bg-background rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b">
-              <h2 className="font-semibold text-sm">{t("media.title")}</h2>
+              <h2 className="font-semibold text-sm">Media Library</h2>
               <button type="button" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
             </div>
 
@@ -631,21 +624,21 @@ function AssetField({ value, onChange }) {
                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
                   className="w-full pl-8 pr-3 h-8 rounded-md border border-input bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder={t("common.search")}
+                  placeholder="Search…"
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 />
               </div>
               <Button type="button" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                <Upload size={13} /> {t("mediaExtra.uploadFile")}
+                <Upload size={13} /> Upload File
               </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-4">
               {filesLoading ? (
-                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">{t("common.loading")}</div>
+                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">Loading…</div>
               ) : !fileList?.items?.length ? (
-                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">{t("common.noData")}</div>
+                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">No records found.</div>
               ) : (
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                   {fileList.items.map((file) => (
@@ -665,7 +658,7 @@ function AssetField({ value, onChange }) {
             {/* Pagination */}
             {fileList && fileList.totalCount > 20 && (
               <div className="flex items-center justify-between px-5 py-3 border-t text-xs text-muted-foreground">
-                <span>{fileList.totalCount} {t("pages.files", "dosya")}</span>
+                <span>{fileList.totalCount} files</span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>‹</Button>
                   <span className="flex items-center px-2">{page} / {Math.ceil(fileList.totalCount / 20)}</span>
@@ -684,7 +677,6 @@ function AssetField({ value, onChange }) {
    Link Field
 ───────────────────────────────────────────────────────────────── */
 function LinkField({ value, onChange }) {
-  const { t } = useTranslation();
   const parsed = useMemo(() => {
     try { return typeof value === "object" && value !== null ? value : JSON.parse(value || "{}"); }
     catch { return {}; }
@@ -694,11 +686,11 @@ function LinkField({ value, onChange }) {
 
   return (
     <div className="space-y-2">
-      <Input placeholder={t("pages.linkLabel", "Buton metni")} value={parsed.label ?? ""} onChange={(e) => set("label", e.target.value)} />
-      <Input placeholder="URL (/hizmetler veya https://...)" value={parsed.href ?? ""} onChange={(e) => set("href", e.target.value)} />
+      <Input placeholder="Button text" value={parsed.label ?? ""} onChange={(e) => set("label", e.target.value)} />
+      <Input placeholder="URL (/services or https://...)" value={parsed.href ?? ""} onChange={(e) => set("href", e.target.value)} />
       <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground">
         <input type="checkbox" checked={!!parsed.newTab} onChange={(e) => set("newTab", e.target.checked)} className="rounded" />
-        {t("pages.openInNewTab", "Yeni sekmede aç")}
+        Open in new tab
       </label>
     </div>
   );
@@ -708,7 +700,6 @@ function LinkField({ value, onChange }) {
    SEO Block
 ───────────────────────────────────────────────────────────────── */
 function SeoBlock({ lang, seo, setSeo }) {
-  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(true);
   function set(field, value) {
     setSeo((prev) => ({ ...prev, [lang]: { ...(prev[lang] ?? {}), [field]: value } }));
@@ -720,23 +711,23 @@ function SeoBlock({ lang, seo, setSeo }) {
       <button type="button" onClick={() => setCollapsed((v) => !v)}
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
         <span className="text-sm font-semibold">
-          {t("pages.seo")} <span className="text-xs font-normal text-muted-foreground uppercase">{lang}</span>
+          SEO <span className="text-xs font-normal text-muted-foreground uppercase">{lang}</span>
         </span>
         {collapsed ? <ChevronDown size={15} className="text-muted-foreground" /> : <ChevronUp size={15} className="text-muted-foreground" />}
       </button>
       {!collapsed && (
         <div className="px-4 pb-4 pt-1 space-y-3 border-t">
           <div className="space-y-1.5">
-            <Label className="text-xs">{t("pages.seoTitle")}</Label>
-            <Input placeholder={t("pages.seoTitle")} value={s.title ?? ""} onChange={(e) => set("title", e.target.value)} />
+            <Label className="text-xs">Page Title</Label>
+            <Input placeholder="Page Title" value={s.title ?? ""} onChange={(e) => set("title", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">{t("pages.seoDesc")}</Label>
+            <Label className="text-xs">Meta Description</Label>
             <textarea className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary resize-none"
               rows={2} value={s.description ?? ""} onChange={(e) => set("description", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">{t("pages.seoOg")}</Label>
+            <Label className="text-xs">OG Image URL</Label>
             <AssetField value={s.ogImage ?? ""} onChange={(v) => set("ogImage", v)} />
           </div>
         </div>

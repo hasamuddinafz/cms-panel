@@ -1,12 +1,10 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const ConfirmContext = createContext(null);
 
 export function ConfirmProvider({ children }) {
-  const { t } = useTranslation();
   const [state, setState] = useState(null); // { message, resolve }
   const resolveRef = useRef(null);
 
@@ -46,7 +44,7 @@ export function ConfirmProvider({ children }) {
               </div>
               <div className="flex-1 min-w-0">
                 <h2 id="confirm-title" className="text-sm font-semibold text-foreground mb-1">
-                  {state.options?.title ?? t("common.confirm")}
+                  {state.options?.title ?? "Are you sure?"}
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {state.message}
@@ -59,13 +57,13 @@ export function ConfirmProvider({ children }) {
                 onClick={() => handleAction(false)}
                 className="h-9 px-4 rounded-md border text-sm font-medium text-muted-foreground hover:bg-muted/60 transition-colors"
               >
-                {state.options?.cancelLabel ?? t("common.cancel")}
+                {state.options?.cancelLabel ?? "Cancel"}
               </button>
               <button
                 onClick={() => handleAction(true)}
                 className="h-9 px-4 rounded-md bg-destructive text-destructive-foreground text-sm font-medium hover:bg-destructive/90 transition-colors"
               >
-                {state.options?.confirmLabel ?? t("common.confirmDelete")}
+                {state.options?.confirmLabel ?? "Delete"}
               </button>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Shield } from "lucide-react";
@@ -19,7 +18,6 @@ import {
 } from "../features/roles/rolesApi";
 
 export default function RolesPage() {
-  const { t } = useTranslation();
   const dt = useDataTable();
   const [modal, setModal] = useState(null);
 
@@ -33,20 +31,20 @@ export default function RolesPage() {
   const confirm = useConfirm();
 
   async function handleDelete(id, isSystem) {
-    if (isSystem) return toast.error(t("rolesExtra.systemCannotDelete"));
-    if (!await confirm(t("confirm.deleteRole"))) return;
+    if (isSystem) return toast.error("System roles cannot be deleted.");
+    if (!await confirm("This role will be deleted. Are you sure?")) return;
     try {
       await deleteRole(id).unwrap();
-      toast.success(t("rolesExtra.deleted"));
+      toast.success("Role deleted.");
     } catch {
-      toast.error(t("rolesExtra.deleteError"));
+      toast.error("Delete failed.");
     }
   }
 
   const columns = useMemo(() => [
     {
       id: "name",
-      header: t("roles.name"),
+      header: "Role Name",
       accessorKey: "name",
       cell: ({ row }) => (
         <span className="flex items-center gap-2 font-medium text-sm">
@@ -54,7 +52,7 @@ export default function RolesPage() {
           {row.original.name}
           {row.original.isSystemRole && (
             <span className="text-[10px] bg-primary/10 text-primary rounded px-1.5 py-0.5 font-semibold">
-              {t("roles.system")}
+              SYSTEM
             </span>
           )}
         </span>
@@ -62,7 +60,7 @@ export default function RolesPage() {
     },
     {
       id: "description",
-      header: t("roles.description"),
+      header: "Description",
       accessorKey: "description",
       enableSorting: false,
       cell: ({ row }) => (
@@ -71,7 +69,7 @@ export default function RolesPage() {
     },
     {
       id: "permissionCount",
-      header: t("roles.permCount"),
+      header: "Permission Count",
       accessorKey: "permissionCount",
       cell: ({ row }) => (
         <span className="text-sm">{row.original.permissionCount}</span>
@@ -101,15 +99,15 @@ export default function RolesPage() {
         </div>
       ),
     },
-  ], [t]); // eslint-disable-line
+  ], []); // eslint-disable-line
 
   return (
     <>
-      <PanelHelmet title={t("roles.title")} />
+      <PanelHelmet title="Roles & Permissions" />
 
       <div className="flex justify-end mb-4">
         <Button size="sm" className="gap-1.5" onClick={() => setModal({ mode: "create" })}>
-          <Plus size={14} /> {t("roles.new")}
+          <Plus size={14} /> New Role
         </Button>
       </div>
 
@@ -136,7 +134,6 @@ export default function RolesPage() {
 }
 
 function RoleModal({ mode, roleId, onClose }) {
-  const { t } = useTranslation();
   const { data: permGroups = [] } = useGetAllPermissionsQuery();
   const { data: existingRole }    = useGetRoleByIdQuery(roleId, { skip: !roleId });
 
@@ -176,14 +173,14 @@ function RoleModal({ mode, roleId, onClose }) {
     try {
       if (mode === "create") {
         await createRole({ name, description, permissionIds }).unwrap();
-        toast.success(t("rolesExtra.created"));
+        toast.success("Role created.");
       } else {
         await updateRole({ id: roleId, name, description, permissionIds }).unwrap();
-        toast.success(t("rolesExtra.updated"));
+        toast.success("Role updated.");
       }
       onClose();
     } catch (err) {
-      toast.error(err?.data ?? t("rolesExtra.error"));
+      toast.error(err?.data ?? "An error occurred.");
     }
   }
 
@@ -199,7 +196,7 @@ function RoleModal({ mode, roleId, onClose }) {
     >
       <div className="bg-background rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 id="role-modal-title" className="font-semibold">{mode === "create" ? t("rolesExtra.newRole") : t("rolesExtra.editRole")}</h2>
+          <h2 id="role-modal-title" className="font-semibold">{mode === "create" ? "New Role" : "Edit Role"}</h2>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>✕</Button>
         </div>
 
@@ -207,18 +204,18 @@ function RoleModal({ mode, roleId, onClose }) {
           <div className="px-5 py-4 border-b space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>{t("rolesExtra.roleName")} *</Label>
-                <Input placeholder="örn. İçerik Editörü" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Label>Role Name *</Label>
+                <Input placeholder="e.g. Content Editor" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="space-y-1.5">
-                <Label>{t("rolesExtra.roleDesc")}</Label>
-                <Input placeholder="Bu rolün kısa açıklaması" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <Label>Description</Label>
+                <Input placeholder="Short description of this role" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("rolesExtra.permissions")}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Permissions</p>
             {permGroups.map((group) => {
               const keys        = group.permissions.map((p) => p.key);
               const allChecked  = keys.every((k) => checked.has(k));
@@ -235,7 +232,7 @@ function RoleModal({ mode, roleId, onClose }) {
                         ref={(el) => { if (el) el.indeterminate = someChecked && !allChecked; }}
                         onChange={(e) => toggleAll(keys, e.target.checked)}
                       />
-                      {t("rolesExtra.selectAll")}
+                      All
                     </label>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-border">
@@ -260,9 +257,9 @@ function RoleModal({ mode, roleId, onClose }) {
           </div>
 
           <div className="flex justify-end gap-2 px-5 py-3 border-t">
-            <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={isBusy}>
-              {isBusy ? t("common.saving") : t("common.save")}
+              {isBusy ? "Saving…" : "Save"}
             </Button>
           </div>
         </form>

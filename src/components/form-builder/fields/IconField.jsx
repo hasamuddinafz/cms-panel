@@ -1,7 +1,6 @@
 import { useState } from "react";
 import * as LucideIcons from "lucide-react";
 import { Search, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { Label } from "../../ui/label";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
@@ -11,7 +10,6 @@ import FieldWrapper from "./FieldWrapper";
 const ALL_ICON_NAMES = Object.keys(LucideIcons).filter((k) => /^[A-Z]/.test(k) && k !== "default");
 
 export default function IconField({ field, value, onChange }) {
-  const { t } = useTranslation();
   const [open,   setOpen]   = useState(false);
   const [search, setSearch] = useState("");
 
@@ -31,10 +29,10 @@ export default function IconField({ field, value, onChange }) {
           className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input text-sm hover:bg-accent transition-colors"
         >
           {SelectedIcon ? <SelectedIcon size={16} /> : null}
-          <span className="text-muted-foreground">{value ?? t("common.selectIcon")}</span>
+          <span className="text-muted-foreground">{value ?? "Select icon…"}</span>
         </button>
         {value && (
-          <Button type="button" variant="ghost" size="icon" onClick={() => onChange(null)} title="Temizle">
+          <Button type="button" variant="ghost" size="icon" onClick={() => onChange(null)} title="Clear">
             <X size={14} />
           </Button>
         )}
@@ -45,7 +43,7 @@ export default function IconField({ field, value, onChange }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-background rounded-xl shadow-xl w-full max-w-2xl max-h-[70vh] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h2 className="font-semibold text-sm">{t("common.iconPickerTitle")}</h2>
+              <h2 className="font-semibold text-sm">Select Icon</h2>
               <Button type="button" variant="ghost" size="icon" onClick={() => setOpen(false)}>
                 <X size={16} />
               </Button>
@@ -55,7 +53,7 @@ export default function IconField({ field, value, onChange }) {
                 <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="pl-8 h-8 text-sm"
-                  placeholder={t("common.searchIcon")}
+                  placeholder="Search icon…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   autoFocus

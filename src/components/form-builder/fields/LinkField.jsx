@@ -1,10 +1,8 @@
-import { useTranslation } from "react-i18next";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import FieldWrapper from "./FieldWrapper";
 
 export default function LinkField({ field, value, onChange }) {
-  const { t } = useTranslation();
   const val = value ?? { label: "", url: "", openInNewTab: false };
 
   function patch(key, newVal) {
@@ -16,12 +14,12 @@ export default function LinkField({ field, value, onChange }) {
       <Label>{field.label}{field.required && " *"}</Label>
       <div className="space-y-2">
         <Input
-          placeholder={t("common.buttonLabel")}
+          placeholder="Button text"
           value={val.label}
           onChange={(e) => patch("label", e.target.value)}
         />
         <Input
-          placeholder={t("common.urlPlaceholder")}
+          placeholder="URL (e.g. /services or https://…)"
           value={val.url}
           onChange={(e) => patch("url", e.target.value)}
         />
@@ -32,7 +30,7 @@ export default function LinkField({ field, value, onChange }) {
             onChange={(e) => patch("openInNewTab", e.target.checked)}
             className="rounded"
           />
-          {t("common.openInNewTab")}
+          Open in new tab
         </label>
       </div>
     </FieldWrapper>

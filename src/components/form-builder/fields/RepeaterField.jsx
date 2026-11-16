@@ -14,14 +14,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { useId } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import FieldWrapper from "./FieldWrapper";
 import FieldRenderer from "../FieldRenderer";
 
 export default function RepeaterField({ field, value = [], onChange, lang }) {
-  const { t } = useTranslation();
   const sensors = useSensors(useSensor(PointerSensor));
 
   function addItem() {
@@ -53,7 +51,7 @@ export default function RepeaterField({ field, value = [], onChange, lang }) {
         <Label>{field.label}{field.required && " *"}</Label>
         {canAdd && (
           <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
-            <Plus size={13} /> {t("common.add")}
+            <Plus size={13} /> Add
           </Button>
         )}
       </div>
@@ -81,7 +79,7 @@ export default function RepeaterField({ field, value = [], onChange, lang }) {
       </DndContext>
 
       {value.length === 0 && (
-        <p className="text-xs text-muted-foreground mt-1">{t("common.noItems")}</p>
+        <p className="text-xs text-muted-foreground mt-1">No items added yet.</p>
       )}
     </FieldWrapper>
   );

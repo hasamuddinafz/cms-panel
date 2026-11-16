@@ -4,11 +4,10 @@ React admin panel for the NEXUS CMS headless content management system.
 
 ## Tech Stack
 
-- **React 18** — Create React App, JSX
+- **React 19** — Create React App, JSX
 - **Redux Toolkit** + RTK Query
 - **TailwindCSS** + shadcn/ui
 - **TipTap** — rich text editor
-- **react-i18next** — TR / EN
 - **dnd-kit** — drag & drop
 - **TanStack Table** — server-side data tables
 - **Lucide Icons** · **sonner** (toasts)
@@ -31,7 +30,7 @@ npm install
 Create `.env` in the project root:
 
 ```env
-REACT_APP_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:5281
 ```
 
 Set this to your production API URL before building.
@@ -70,6 +69,8 @@ npm run build
 
 ## Multi-language Content
 
+The panel UI is English-only; site **content** can be written in any number of languages managed under *Settings → Languages*.
+
 Fields marked **translatable** in the schema store content per language. Non-translatable fields show an amber **"shared"** badge and share one value across all languages.
 
 ## Project Structure
@@ -83,7 +84,6 @@ src/
 │   ├── layout/       # Sidebar, Header, PanelHelmet
 │   └── ui/           # shadcn/ui primitives, ConfirmDialog
 ├── features/         # RTK Query API slices per domain
-├── i18n/             # tr.js / en.js translations
 └── pages/            # Route-level page components
 ```
 
@@ -91,4 +91,18 @@ src/
 
 | Variable | Default | Description |
 |---|---|---|
-| `REACT_APP_API_URL` | `http://localhost:5000` | NEXUS CMS API base URL |
+| `REACT_APP_API_URL` | `http://localhost:5000` (fallback) | NEXUS CMS API base URL |
+
+## Default Login
+
+After the first start the API seeds a SuperAdmin user: `admin@nexuscms.local` / `Admin1234!`. **Change this password immediately.**
+
+## Contributing
+
+NEXUS CMS is open source and contributions are welcome. Fork the repo, create a feature branch, make sure the build passes, and open a Pull Request describing what changed and why. Bug reports and feature ideas are welcome as issues.
+
+Related repository — API: [cms-api](https://github.com/hasamuddinafz/cms-api)
+
+## License
+
+[MIT](LICENSE) © Hasamuddin Afzali

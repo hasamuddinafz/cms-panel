@@ -7,18 +7,18 @@ import { Label } from "../../ui/label";
 import FieldWrapper from "./FieldWrapper";
 
 const toolbar = [
-  { cmd: "toggleBold",   label: "B",   title: "Kalın" },
-  { cmd: "toggleItalic", label: "I",   title: "İtalik" },
-  { cmd: "toggleStrike", label: "S",   title: "Üstü çizili" },
-  { cmd: "toggleBulletList", label: "• List", title: "Madde listesi" },
-  { cmd: "toggleOrderedList", label: "1. List", title: "Sıralı liste" },
+  { cmd: "toggleBold",   label: "B",   title: "Bold" },
+  { cmd: "toggleItalic", label: "I",   title: "Italic" },
+  { cmd: "toggleStrike", label: "S",   title: "Strikethrough" },
+  { cmd: "toggleBulletList", label: "• List", title: "Bullet list" },
+  { cmd: "toggleOrderedList", label: "1. List", title: "Ordered list" },
 ];
 
 export default function RichTextField({ field, value, onChange }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: field.placeholder ?? "İçerik girin…" }),
+      Placeholder.configure({ placeholder: field.placeholder ?? "Enter content…" }),
       Link.configure({ openOnClick: false }),
     ],
     content: value ?? "",

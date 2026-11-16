@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-table";
 import { ChevronUp, ChevronDown, ChevronsUpDown, FileDown, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -28,7 +27,6 @@ export default function DataTable({
   onExportCsv,
   onExportExcel,
 }) {
-  const { t } = useTranslation();
   const [searchDraft, setSearchDraft] = useState(search);
   const debounceRef = useRef(null);
 
@@ -60,7 +58,7 @@ export default function DataTable({
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-            placeholder={t("common.search", "Ara…")}
+            placeholder="Search…"
             value={searchDraft}
             onChange={handleSearchInput}
           />
@@ -126,14 +124,14 @@ export default function DataTable({
                   <td colSpan={columns.length} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      <span className="text-xs">{t("common.loading")}</span>
+                      <span className="text-xs">Loading…</span>
                     </div>
                   </td>
                 </tr>
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="py-16 text-center text-muted-foreground text-sm">
-                    {t("common.noData")}
+                    No records found.
                   </td>
                 </tr>
               ) : (
@@ -156,8 +154,8 @@ export default function DataTable({
       <div className="flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="text-xs text-muted-foreground">
           {totalCount === 0
-            ? t("common.noRecords")
-            : <>{from}–{to} / <strong className="text-foreground">{totalCount}</strong> {t("common.records")}</>
+            ? "No records."
+            : <>{from}–{to} / <strong className="text-foreground">{totalCount}</strong> records</>
           }
         </p>
 
@@ -168,7 +166,7 @@ export default function DataTable({
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
           >
             {PAGE_SIZE_OPTIONS.map((n) => (
-              <option key={n} value={n}>{n} {t("common.perPage")}</option>
+              <option key={n} value={n}>{n} / page</option>
             ))}
           </select>
 

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import {
   ArrowLeft, Save, Plus, Trash2, GripVertical,
   ChevronDown, ChevronUp, Settings2, Layers, Type,
@@ -21,27 +20,27 @@ import {
 
 /* ─── Field type registry ─── */
 const FIELD_TYPES = [
-  { value: "text",     label: "Metin",          desc: "Tek satır",          icon: Type,       color: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400" },
-  { value: "textarea", label: "Uzun Metin",      desc: "Çok satır",          icon: AlignLeft,  color: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400" },
-  { value: "richtext", label: "Zengin Metin",    desc: "Editör",             icon: Code2,      color: "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400" },
-  { value: "number",   label: "Sayı",            desc: "Tam / ondalık",      icon: Hash,       color: "bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400" },
-  { value: "boolean",  label: "Açık / Kapalı",   desc: "Toggle",             icon: ToggleLeft, color: "bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400" },
-  { value: "select",   label: "Seçim Listesi",   desc: "Dropdown",           icon: List,       color: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400" },
-  { value: "asset",    label: "Medya",           desc: "Görsel / Dosya",     icon: Image,      color: "bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400" },
-  { value: "link",     label: "Bağlantı",        desc: "URL + etiket",       icon: Link2,      color: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-400" },
-  { value: "color",    label: "Renk",            desc: "Renk seçici",        icon: Palette,    color: "bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400" },
-  { value: "date",     label: "Tarih / Saat",    desc: "Date picker",        icon: Calendar,   color: "bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400" },
-  { value: "repeater", label: "Tekrarlanan Grup", desc: "Dinamik liste",     icon: Repeat2,    color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400" },
+  { value: "text",     label: "Text",           desc: "Single line",        icon: Type,       color: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400" },
+  { value: "textarea", label: "Long Text",       desc: "Multi-line",         icon: AlignLeft,  color: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400" },
+  { value: "richtext", label: "Rich Text",       desc: "Editor",             icon: Code2,      color: "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400" },
+  { value: "number",   label: "Number",          desc: "Integer / decimal",   icon: Hash,       color: "bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400" },
+  { value: "boolean",  label: "On / Off",        desc: "Toggle",             icon: ToggleLeft, color: "bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400" },
+  { value: "select",   label: "Select List",     desc: "Dropdown",           icon: List,       color: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400" },
+  { value: "asset",    label: "Media",           desc: "Image / File",       icon: Image,      color: "bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400" },
+  { value: "link",     label: "Link",            desc: "URL + label",        icon: Link2,      color: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-400" },
+  { value: "color",    label: "Color",           desc: "Color picker",       icon: Palette,    color: "bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400" },
+  { value: "date",     label: "Date / Time",     desc: "Date picker",        icon: Calendar,   color: "bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400" },
+  { value: "repeater", label: "Repeater",         desc: "Dynamic list",       icon: Repeat2,    color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400" },
 ];
 
 function typeInfo(type) {
   return FIELD_TYPES.find((t) => t.value === type) ?? FIELD_TYPES[0];
 }
 
-const TR_MAP = { ş:"s",ğ:"g",ı:"i",ç:"c",ö:"o",ü:"u",Ş:"S",Ğ:"G",İ:"I",Ç:"C",Ö:"O",Ü:"U" };
+const TRANSLIT_MAP = { ş:"s",ğ:"g",ı:"i",ç:"c",ö:"o",ü:"u",Ş:"S",Ğ:"G",İ:"I",Ç:"C",Ö:"O",Ü:"U" };
 function slugify(str) {
   return str
-    .split("").map((c) => TR_MAP[c] ?? c).join("")
+    .split("").map((c) => TRANSLIT_MAP[c] ?? c).join("")
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
@@ -57,7 +56,6 @@ function newSection() {
    Main Page
 ══════════════════════════════════════════════ */
 export default function PageModelEditorPage() {
-  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -116,32 +114,32 @@ export default function PageModelEditorPage() {
   }));
 
   async function handleSave() {
-    if (!name.trim()) { toast.error(t("pageModels.nameRequired")); return; }
-    if (!key.trim())  { toast.error(t("pageModels.keyRequired")); return; }
+    if (!name.trim()) { toast.error("Model name is required."); return; }
+    if (!key.trim())  { toast.error("Key is required."); return; }
     for (const sec of sections) {
-      if (!sec.key.trim()) { toast.error(t("pageModels.sectionKeyRequired")); return; }
+      if (!sec.key.trim()) { toast.error("All sections must have a key."); return; }
       for (const f of sec.fields ?? []) {
-        if (!f.key.trim()) { toast.error(t("pageModels.sectionKeyRequired")); return; }
+        if (!f.key.trim()) { toast.error("All sections must have a key."); return; }
       }
     }
     const schemaJson = JSON.stringify({ sections });
     try {
       if (isEdit) {
         await updateModel({ id, name, key, description, icon, isSingleton, schemaJson }).unwrap();
-        toast.success(t("pageModels.saved"));
+        toast.success("Model updated.");
       } else {
         await createModel({ name, key, description, icon, isSingleton, schemaJson }).unwrap();
-        toast.success(t("pageModels.created"));
+        toast.success("Model created.");
       }
       navigate("/page-models");
     } catch (err) {
-      toast.error(err?.data?.error ?? t("common.error"));
+      toast.error(err?.data?.error ?? "An error occurred.");
     }
   }
 
   return (
     <>
-      <PanelHelmet title={isEdit ? t("pageModels.edit") : t("pageModels.new")} />
+      <PanelHelmet title={isEdit ? "Edit Model" : "New Model"} />
 
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between mb-8">
@@ -153,38 +151,38 @@ export default function PageModelEditorPage() {
             <ArrowLeft size={16} />
           </button>
           <div>
-            <h1 className="text-xl font-bold">{isEdit ? t("pageModels.edit") : t("pageModels.new")}</h1>
+            <h1 className="text-xl font-bold">{isEdit ? "Edit Model" : "New Model"}</h1>
             {key && <p className="text-xs text-muted-foreground mt-0.5 font-mono">/{key}</p>}
           </div>
         </div>
         <Button size="sm" className="gap-2 h-9 px-4" onClick={handleSave} disabled={isBusy}>
           <Save size={14} />
-          {isBusy ? t("common.saving") : t("common.save")}
+          {isBusy ? "Saving…" : "Save"}
         </Button>
       </div>
 
       <div className="grid grid-cols-[1fr_272px] gap-6 items-start">
 
-        {/* ════════════════ Sol: Bölümler ════════════════ */}
+        {/* ════════════════ Left: Sections ════════════════ */}
         <div className="space-y-4">
 
           {/* Section list header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Layers size={15} className="text-muted-foreground" />
-              <span className="text-sm font-semibold">Bölümler</span>
+              <span className="text-sm font-semibold">Sections</span>
               <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{sections.length}</span>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5 h-8" onClick={addSection}>
-              <Plus size={13} /> Bölüm Ekle
+              <Plus size={13} /> Add Section
             </Button>
           </div>
 
           {sections.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed py-16 text-center">
               <Layers size={32} className="mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">Henüz bölüm yok</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Yukarıdaki "Bölüm Ekle" butonuyla başlayın</p>
+              <p className="text-sm font-medium text-muted-foreground">No sections yet</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Start with the "Add Section" button above</p>
             </div>
           )}
 
@@ -205,26 +203,26 @@ export default function PageModelEditorPage() {
           ))}
         </div>
 
-        {/* ════════════════ Sağ: Model bilgileri ════════════════ */}
+        {/* ════════════════ Right: Model info ════════════════ */}
         <div className="space-y-3 sticky top-4">
           <div className="rounded-2xl border bg-card p-5 space-y-4">
             <h3 className="text-sm font-semibold flex items-center gap-2">
               <Settings2 size={14} className="text-muted-foreground" />
-              Model Bilgileri
+              Model Info
             </h3>
 
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t("pageModels.name")} *</Label>
+                <Label className="text-xs font-medium">Model Name *</Label>
                 <Input
-                  placeholder={t("pageModels.namePlaceholder", "e.g. Blog Post")}
+                  placeholder="e.g. Blog Post"
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t("pageModels.key")} *</Label>
+                <Label className="text-xs font-medium">Key *</Label>
                 <div className="relative">
                   <Input
                     placeholder="blog-post"
@@ -236,18 +234,18 @@ export default function PageModelEditorPage() {
                     <Check size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-green-500" />
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">{t("pageModels.keyHint", "Used in API — do not change later")}</p>
+                <p className="text-[11px] text-muted-foreground">Used in API — do not change later</p>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t("pageModels.description")}</Label>
-                <Input placeholder={t("pageModels.descPlaceholder", "Short description")} value={description} onChange={(e) => setDescription(e.target.value)} />
+                <Label className="text-xs font-medium">Description</Label>
+                <Input placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t("pageModels.icon")}</Label>
+                <Label className="text-xs font-medium">Icon</Label>
                 <Input placeholder="FileText, Globe, Star…" value={icon} onChange={(e) => setIcon(e.target.value)} />
-                <p className="text-[11px] text-muted-foreground">{t("pageModels.iconHint", "Lucide icon name (PascalCase)")}</p>
+                <p className="text-[11px] text-muted-foreground">Lucide icon name (PascalCase)</p>
               </div>
             </div>
 
@@ -262,15 +260,15 @@ export default function PageModelEditorPage() {
                 {isSingleton && <Check size={10} className="text-white" />}
               </div>
               <div>
-                <p className="text-sm font-medium">{t("pageModels.singleton")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("pageModels.singletonDesc")}</p>
+                <p className="text-sm font-medium">Singleton</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Only 1 content can be created from this model</p>
               </div>
             </div>
           </div>
 
           {/* Field type legend */}
           <div className="rounded-2xl border bg-card p-4 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("pageModels.fieldTypesLegend", "Field Types")}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Field Types</p>
             <div className="space-y-1.5">
               {FIELD_TYPES.map((t) => {
                 const Icon = t.icon;
@@ -299,7 +297,6 @@ function SectionCard({
   onUpdate, onRemove, onMove,
   onAddField, onRemoveField, onUpdateField, onMoveField,
 }) {
-  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   // Track whether the user has manually edited the key — if not, auto-follow the label
   const [keyEdited, setKeyEdited] = useState(() => !!section.key);
@@ -341,7 +338,7 @@ function SectionCard({
         {/* Section name + key */}
         <div className="flex-1 grid grid-cols-2 gap-2">
           <Input
-            placeholder={t("pageModels.sectionName")}
+            placeholder="Section name"
             value={section.label}
             onChange={(e) => handleLabelChange(e.target.value)}
             className="h-8 text-sm font-medium"
@@ -368,12 +365,12 @@ function SectionCard({
           )}
         >
           <Repeat2 size={11} />
-          {t("pageModels.repeatable")}
+          Repeatable
         </div>
 
         {/* Field count */}
         <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5 shrink-0">
-          {fieldCount} {t("pageModels.fields", "fields")}
+          {fieldCount} fields
         </span>
 
         {/* Collapse */}
@@ -394,7 +391,7 @@ function SectionCard({
         <div className="border-t bg-muted/10 px-4 py-3 space-y-2">
           {fieldCount === 0 && (
             <p className="text-xs text-center text-muted-foreground py-4">
-              {t("pageModels.noFields", "No fields yet. Add one below.")}
+              No fields yet. Add one below.
             </p>
           )}
 
@@ -415,7 +412,7 @@ function SectionCard({
             onClick={onAddField}
             className="w-full flex items-center justify-center gap-1.5 border-2 border-dashed rounded-xl py-2.5 text-xs text-muted-foreground hover:text-primary hover:border-primary transition-colors mt-1"
           >
-            <Plus size={13} /> {t("pageModels.addField")}
+            <Plus size={13} /> Add Field
           </button>
         </div>
       )}
@@ -427,7 +424,6 @@ function SectionCard({
    Field Row
 ══════════════════════════════════════════════ */
 function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }) {
-  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [keyEdited, setKeyEdited] = useState(() => !!field.key);
   const info = typeInfo(field.type);
@@ -473,7 +469,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
         {/* Label */}
         <Input
-          placeholder={t("pageModels.fieldName")}
+          placeholder="Field name"
           value={field.label}
           onChange={(e) => handleLabelChange(e.target.value)}
           className="h-8 text-sm flex-1 min-w-0"
@@ -483,7 +479,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
         <div className="flex items-center gap-1 shrink-0">
           <span className="text-xs text-muted-foreground">#</span>
           <Input
-            placeholder="baslik"
+            placeholder="title"
             value={field.key}
             onChange={(e) => handleKeyChange(e.target.value)}
             className="h-8 text-xs font-mono w-24"
@@ -506,7 +502,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
           <button
             type="button"
             onClick={() => onUpdate({ required: !field.required })}
-            title={t("pageModels.required")}
+            title="Required"
             className={cn(
               "h-6 px-2 rounded-md text-[10px] font-medium border transition-colors",
               field.required
@@ -514,12 +510,12 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
                 : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted"
             )}
           >
-            {t("pageModels.required")}
+            Required
           </button>
           <button
             type="button"
             onClick={() => onUpdate({ translatable: !field.translatable })}
-            title={t("pageModels.translatable")}
+            title="Translate"
             className={cn(
               "h-6 px-2 rounded-md text-[10px] font-medium border transition-colors",
               field.translatable
@@ -527,13 +523,13 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
                 : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted"
             )}
           >
-            {t("pageModels.translatable")}
+            Translate
           </button>
         </div>
 
         {/* Expand */}
         <button type="button" onClick={() => setExpanded((v) => !v)}
-          title={t("pageModels.advancedSettings", "Advanced settings")}
+          title="Advanced settings"
           className={cn(
             "w-7 h-7 flex items-center justify-center rounded-lg transition-colors shrink-0",
             expanded ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -553,9 +549,9 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
         <div className="border-t bg-muted/5 px-4 py-3 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{t("pageModels.placeholderText", "Placeholder")}</Label>
+              <Label className="text-xs">Placeholder</Label>
               <Input
-                placeholder={t("pageModels.placeholderHint", "Hint shown to user…")}
+                placeholder="Hint shown to user…"
                 value={field.placeholder ?? ""}
                 onChange={(e) => onUpdate({ placeholder: e.target.value })}
                 className="h-8 text-xs"
@@ -564,16 +560,16 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
             {field.type === "asset" && (
               <div className="space-y-1.5">
-                <Label className="text-xs">{t("pageModels.assetType", "Allowed media type")}</Label>
+                <Label className="text-xs">Allowed media type</Label>
                 <select
                   className="w-full h-8 border rounded-md pl-2 pr-7 text-xs bg-background focus:outline-none focus:ring-1 focus:ring-primary"
                   value={field.assetType ?? ""}
                   onChange={(e) => onUpdate({ assetType: e.target.value })}
                 >
-                  <option value="">{t("pageModels.assetAll", "All")}</option>
-                  <option value="image">{t("pageModels.assetImage", "Image only")}</option>
-                  <option value="document">{t("pageModels.assetDoc", "Document only")}</option>
-                  <option value="video">{t("pageModels.assetVideo", "Video only")}</option>
+                  <option value="">All</option>
+                  <option value="image">Image only</option>
+                  <option value="document">Document only</option>
+                  <option value="video">Video only</option>
                 </select>
               </div>
             )}
@@ -581,11 +577,11 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
             {field.type === "number" && (
               <>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{t("pageModels.minValue", "Min")}</Label>
+                  <Label className="text-xs">Min</Label>
                   <Input type="number" placeholder="0" value={field.min ?? ""} onChange={(e) => onUpdate({ min: e.target.value })} className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{t("pageModels.maxValue", "Max")}</Label>
+                  <Label className="text-xs">Max</Label>
                   <Input type="number" placeholder="100" value={field.max ?? ""} onChange={(e) => onUpdate({ max: e.target.value })} className="h-8 text-xs" />
                 </div>
               </>
@@ -594,7 +590,7 @@ function FieldRow({ field, fieldIndex, totalFields, onUpdate, onRemove, onMove }
 
           {field.type === "select" && (
             <div className="space-y-1.5">
-              <Label className="text-xs">{t("pageModels.selectOptions", "Options")} <span className="text-muted-foreground font-normal">({t("pageModels.selectOptionsHint", "one per line — value:Label or just value")})</span></Label>
+              <Label className="text-xs">Options <span className="text-muted-foreground font-normal">(one per line — value:Label or just value)</span></Label>
               <textarea
                 className="w-full border rounded-xl px-3 py-2 text-xs bg-background font-mono focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                 rows={4}

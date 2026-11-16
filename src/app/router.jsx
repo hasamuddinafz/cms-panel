@@ -33,61 +33,61 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true,          element: <DashboardPage />,  handle: { title: "Dashboard" } },
-          { path: "page-models",           element: <PageModelsPage />,      handle: { title: "Sayfa Modelleri" } },
-          { path: "page-models/new",       element: <PageModelEditorPage />, handle: { title: "Yeni Model" } },
-          { path: "page-models/edit/:id",  element: <PageModelEditorPage />, handle: { title: "Model Düzenle" } },
-          { path: "pages",          element: <PagesPage />,       handle: { title: "İçerik" } },
-          { path: "pages/new",     element: <PageEditorPage />,  handle: { title: "Yeni İçerik" } },
-          { path: "pages/edit/:id",element: <PageEditorPage />,  handle: { title: "İçerik Düzenle" } },
-          { path: "media",        element: <MediaPage />,      handle: { title: "Medya" } },
-          { path: "menus",        element: <MenusPage />,      handle: { title: "Menüler" } },
-          { path: "settings",     element: <SettingsPage />,   handle: { title: "Ayarlar" } },
+          { path: "page-models",           element: <PageModelsPage />,      handle: { title: "Page Models" } },
+          { path: "page-models/new",       element: <PageModelEditorPage />, handle: { title: "New Model" } },
+          { path: "page-models/edit/:id",  element: <PageModelEditorPage />, handle: { title: "Edit Model" } },
+          { path: "pages",          element: <PagesPage />,       handle: { title: "Content" } },
+          { path: "pages/new",     element: <PageEditorPage />,  handle: { title: "New Content" } },
+          { path: "pages/edit/:id",element: <PageEditorPage />,  handle: { title: "Edit Content" } },
+          { path: "media",        element: <MediaPage />,      handle: { title: "Media" } },
+          { path: "menus",        element: <MenusPage />,      handle: { title: "Menus" } },
+          { path: "settings",     element: <SettingsPage />,   handle: { title: "Settings" } },
           {
             path: "settings/languages",
             element: <LanguagesPage />,
-            handle: { title: "Diller" },
+            handle: { title: "Languages" },
           },
 
           // Permission-guarded routes
           {
             element: <RequirePermission permission="users.manage" />,
             children: [
-              { path: "users", element: <UsersPage />, handle: { title: "Kullanıcılar" } },
+              { path: "users", element: <UsersPage />, handle: { title: "Users" } },
             ],
           },
           {
             element: <RequirePermission permission="roles.manage" />,
             children: [
-              { path: "roles", element: <RolesPage />, handle: { title: "Roller & Yetkiler" } },
+              { path: "roles", element: <RolesPage />, handle: { title: "Roles & Permissions" } },
             ],
           },
           {
             element: <RequirePermission permission="activity.view" />,
             children: [
-              { path: "activity", element: <ActivityPage />, handle: { title: "Aktivite" } },
+              { path: "activity", element: <ActivityPage />, handle: { title: "Activity" } },
             ],
           },
 
-          { path: "docs", element: <DocsPage />, handle: { title: "Dokümantasyon" } },
+          { path: "docs", element: <DocsPage />, handle: { title: "Documentation" } },
 
           // Contact & Mail
           {
             element: <RequirePermission permission="contact.view" />,
             children: [
-              { path: "contact", element: <ContactPage />, handle: { title: "İletişim Mesajları" } },
+              { path: "contact", element: <ContactPage />, handle: { title: "Contact Messages" } },
             ],
           },
           {
             element: <RequirePermission permission="mail.send" />,
             children: [
-              { path: "mail", element: <MailComposePage />, handle: { title: "Mail Gönder" } },
-              { path: "mail/templates", element: <MailTemplatesPage />, handle: { title: "Mail Şablonları" } },
+              { path: "mail", element: <MailComposePage />, handle: { title: "Send Mail" } },
+              { path: "mail/templates", element: <MailTemplatesPage />, handle: { title: "Mail Templates" } },
             ],
           },
           {
             element: <RequirePermission permission="subscribers.view" />,
             children: [
-              { path: "subscribers", element: <SubscribersPage />, handle: { title: "Aboneler" } },
+              { path: "subscribers", element: <SubscribersPage />, handle: { title: "Subscribers" } },
             ],
           },
 

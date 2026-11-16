@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import { Mail, Trash2, Reply, CheckCircle, Circle, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -12,7 +11,6 @@ import {
 } from "../features/contact/contactApi";
 
 export default function ContactPage() {
-  const { t } = useTranslation();
   const [search, setSearch]     = useState("");
   const [isRead, setIsRead]     = useState(undefined);
   const [page, setPage]         = useState(1);
@@ -33,10 +31,10 @@ export default function ContactPage() {
   }
 
   async function handleDelete(id) {
-    if (!await confirm(t("contact.deleteConfirm"))) return;
+    if (!await confirm("Are you sure you want to delete this message?")) return;
     await deletMsg(id);
     if (selected?.id === id) setSelected(null);
-    toast.success(t("contact.deleted"));
+    toast.success("Message deleted.");
   }
 
   const items      = data?.items ?? [];
@@ -49,9 +47,9 @@ export default function ContactPage() {
       <div className="p-6 h-full flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">{t("contact.title")}</h1>
+            <h1 className="text-xl font-bold">Contact Messages</h1>
             {unread > 0 && (
-              <p className="text-sm text-muted-foreground mt-0.5">{unread} {t("contact.unreadMessages")}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{unread} unread messages</p>
             )}
           </div>
         </div>
@@ -62,7 +60,7 @@ export default function ContactPage() {
             <input
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder={t("contact.searchPlaceholder")}
+              placeholder="Search by name, email or subject…"
               className="w-full pl-8 pr-3 h-9 rounded-md border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -71,17 +69,17 @@ export default function ContactPage() {
             onChange={e => { setIsRead(e.target.value === "" ? undefined : e.target.value === "true"); setPage(1); }}
             className="h-9 pl-3 pr-8 rounded-md border bg-card text-sm focus:outline-none"
           >
-            <option value="">{t("contact.all")}</option>
-            <option value="false">{t("contact.unread")}</option>
-            <option value="true">{t("contact.read")}</option>
+            <option value="">All</option>
+            <option value="false">Unread</option>
+            <option value="true">Read</option>
           </select>
         </div>
 
         <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
           <div className="w-96 shrink-0 flex flex-col gap-1 overflow-y-auto">
-            {isFetching && <p className="text-sm text-muted-foreground p-2">{t("contact.loading")}</p>}
+            {isFetching && <p className="text-sm text-muted-foreground p-2">Loading…</p>}
             {!isFetching && items.length === 0 && (
-              <div className="text-center py-10 text-muted-foreground text-sm">{t("contact.notFound")}</div>
+              <div className="text-center py-10 text-muted-foreground text-sm">No messages found.</div>
             )}
             {items.map(msg => (
               <button
@@ -105,7 +103,7 @@ export default function ContactPage() {
                         {msg.fullName}
                       </span>
                       <span className="text-[10px] text-muted-foreground shrink-0">
-                        {new Date(msg.createdAt).toLocaleDateString("tr")}
+                        {new Date(msg.createdAt).toLocaleDateString("en-US")}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
@@ -134,14 +132,14 @@ export default function ContactPage() {
             {!selected ? (
               <div className="h-full flex flex-col items-center justify-center gap-3 text-muted-foreground">
                 <Mail size={40} className="opacity-20" />
-                <p className="text-sm">{t("contact.selectMessage")}</p>
+                <p className="text-sm">Select a message to read</p>
               </div>
             ) : (
               <MessageDetail
                 msg={selected}
                 onDelete={handleDelete}
                 onReply={() => setReplyOpen(true)}
-                replyLabel={t("contact.reply")}
+                replyLabel="Reply"
               />
             )}
           </div>
@@ -154,8 +152,8 @@ export default function ContactPage() {
           onClose={() => setReplyOpen(false)}
           onSend={async (body) => {
             const r = await reply({ id: selected.id, ...body });
-            if (r.error) { toast.error(t("contact.sendError")); return; }
-            toast.success(t("contact.replySent"));
+            if (r.error) { toast.error("Could not send mail."); return; }
+            toast.success("Reply sent.");
             setReplyOpen(false);
           }}
         />
@@ -176,7 +174,7 @@ function MessageDetail({ msg, onDelete, onReply, replyLabel }) {
             {msg.phone && <> · {msg.phone}</>}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {new Date(msg.createdAt).toLocaleString("tr")}
+            {new Date(msg.createdAt).toLocaleString("en-US")}
             {msg.ipAddress && <> · IP: {msg.ipAddress}</>}
           </p>
         </div>
@@ -200,7 +198,6 @@ function MessageDetail({ msg, onDelete, onReply, replyLabel }) {
 }
 
 function ReplyModal({ msg, onClose, onSend }) {
-  const { t } = useTranslation();
   const [subject, setSubject] = useState(`Re: ${msg.subject}`);
   const [body, setBody]       = useState("");
   const [sending, setSending] = useState(false);
@@ -221,16 +218,16 @@ function ReplyModal({ msg, onClose, onSend }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg bg-card rounded-xl border border-border shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h3 className="font-semibold text-sm">{t("contact.replyModal")} — {msg.fullName}</h3>
+          <h3 className="font-semibold text-sm">Reply — {msg.fullName}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
         </div>
         <form onSubmit={submit} className="p-5 flex flex-col gap-3">
           <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1">{t("contact.recipient")}</label>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Recipient</label>
             <input value={msg.email} disabled className="w-full h-9 px-3 rounded-md border bg-muted/40 text-sm text-muted-foreground" />
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1">{t("contact.subject")}</label>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Subject</label>
             <input
               value={subject}
               onChange={e => setSubject(e.target.value)}
@@ -239,22 +236,22 @@ function ReplyModal({ msg, onClose, onSend }) {
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1">{t("contact.message")}</label>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Message</label>
             <textarea
               value={body}
               onChange={e => setBody(e.target.value)}
               required
               rows={8}
-              placeholder="Cevabınızı yazın…"
+              placeholder="Write your reply…"
               className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
             />
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" onClick={onClose}
-              className="h-8 px-4 rounded-md text-sm border hover:bg-muted transition-colors">{t("contact.cancel")}</button>
+              className="h-8 px-4 rounded-md text-sm border hover:bg-muted transition-colors">Cancel</button>
             <button type="submit" disabled={sending}
               className="h-8 px-4 rounded-md text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-60">
-              {sending ? t("contact.replySending") : t("contact.replySend")}
+              {sending ? "Sending…" : "Send"}
             </button>
           </div>
         </form>

@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import { Plus, Trash2, Pencil, X, Save } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -18,7 +17,6 @@ import {
 import { usePermission } from "../app/usePermission";
 
 export default function MailTemplatesPage() {
-  const { t, i18n } = useTranslation();
   const dt = useDataTable();
   const [editing, setEditing] = useState(null); // null = list, { id?, name, subject, htmlBody } = form
 
@@ -39,45 +37,45 @@ export default function MailTemplatesPage() {
 
   async function handleSave() {
     if (!editing?.name?.trim() || !editing?.subject?.trim()) {
-      toast.error(t("mailTemplates.required"));
+      toast.error("Name and subject are required.");
       return;
     }
     try {
       if (editing.id) {
         await updateTpl({ id: editing.id, name: editing.name, subject: editing.subject, htmlBody: editing.htmlBody }).unwrap();
-        toast.success(t("mailTemplates.updated"));
+        toast.success("Template updated.");
       } else {
         await createTpl({ name: editing.name, subject: editing.subject, htmlBody: editing.htmlBody }).unwrap();
-        toast.success(t("mailTemplates.created"));
+        toast.success("Template created.");
       }
       setEditing(null);
     } catch {
-      toast.error(t("mailTemplates.error"));
+      toast.error("An error occurred.");
     }
   }
 
   async function handleDelete(id) {
-    if (!await confirm(t("mailTemplates.deleteConfirm"))) return;
+    if (!await confirm("Delete this template?")) return;
     try {
       await deleteTpl(id).unwrap();
-      toast.success(t("mailTemplates.deleted"));
+      toast.success("Template deleted.");
     } catch {
-      toast.error(t("mailTemplates.deleteError"));
+      toast.error("Could not delete.");
     }
   }
 
   const columns = useMemo(() => [
     {
-      id: "name", header: t("mailTemplates.name"), accessorKey: "name",
+      id: "name", header: "Template Name", accessorKey: "name",
       cell: ({ row }) => <span className="font-medium text-sm">{row.original.name}</span>,
     },
     {
-      id: "subject", header: t("mailTemplates.subject"), accessorKey: "subject",
+      id: "subject", header: "Subject", accessorKey: "subject",
       cell: ({ row }) => <span className="text-sm text-muted-foreground">{row.original.subject}</span>,
     },
     {
-      id: "createdAt", header: t("mailTemplates.createdAt"), accessorKey: "createdAt",
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(i18n.language),
+      id: "createdAt", header: "Created", accessorKey: "createdAt",
+      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("en-US"),
     },
     {
       id: "actions", header: "", enableSorting: false,
@@ -102,12 +100,12 @@ export default function MailTemplatesPage() {
         </div>
       ),
     },
-  ], [t, i18n.language, canEdit, canDelete]); // eslint-disable-line react-hooks/exhaustive-deps
+  ], [canEdit, canDelete]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (editing !== null) {
     return (
       <>
-        <PanelHelmet title={t("mailTemplates.title")} />
+        <PanelHelmet title="Mail Templates" />
         <div>
           <div className="flex items-center gap-3 mb-6">
             <button
@@ -116,28 +114,28 @@ export default function MailTemplatesPage() {
             >
               <X size={16} />
             </button>
-            <h1 className="text-xl font-bold">{editing.id ? t("mailTemplates.editTitle") : t("mailTemplates.newTitle")}</h1>
+            <h1 className="text-xl font-bold">{editing.id ? "Edit Template" : "New Template"}</h1>
           </div>
 
           <div className="rounded-xl border bg-card p-5 space-y-4">
             <div className="space-y-1.5">
-              <Label>{t("mailTemplates.name")}</Label>
+              <Label>Template Name</Label>
               <Input
-                placeholder={t("mailTemplates.namePlaceholder")}
+                placeholder="e.g. Welcome Mail"
                 value={editing.name}
                 onChange={(e) => setEditing(v => ({ ...v, name: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{t("mailTemplates.subject")}</Label>
+              <Label>Subject</Label>
               <Input
-                placeholder={t("mailTemplates.subjectPlaceholder")}
+                placeholder="Mail subject"
                 value={editing.subject}
                 onChange={(e) => setEditing(v => ({ ...v, subject: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{t("mailTemplates.body")}</Label>
+              <Label>HTML Body</Label>
               <textarea
                 rows={12}
                 placeholder="<p>...</p>"
@@ -147,9 +145,9 @@ export default function MailTemplatesPage() {
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button variant="outline" onClick={() => setEditing(null)}>{t("common.cancel")}</Button>
+              <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
               <Button onClick={handleSave} className="gap-1.5">
-                <Save size={14} /> {t("common.save")}
+                <Save size={14} /> Save
               </Button>
             </div>
           </div>
@@ -160,12 +158,12 @@ export default function MailTemplatesPage() {
 
   return (
     <>
-      <PanelHelmet title={t("mailTemplates.title")} />
+      <PanelHelmet title="Mail Templates" />
 
       <div className="flex justify-end mb-4">
         {canCreate && (
           <Button size="sm" className="gap-1.5" onClick={() => setEditing({ name: "", subject: "", htmlBody: "" })}>
-            <Plus size={14} /> {t("mailTemplates.new")}
+            <Plus size={14} /> New Template
           </Button>
         )}
       </div>

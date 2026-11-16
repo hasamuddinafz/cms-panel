@@ -1,24 +1,22 @@
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import PanelHelmet from "../components/layout/PanelHelmet";
 import DataTable from "../components/data-table/DataTable";
 import { useDataTable } from "../components/data-table/useDataTable";
 import { useExport } from "../components/data-table/useExport";
 import { useGetActivityListQuery } from "../features/activity/activityApi";
 
-function getActionLabel(action, t) {
+function getActionLabel(action) {
   const map = {
-    Created:   t("activity.actionLabels.Created"),
-    Updated:   t("activity.actionLabels.Updated"),
-    Deleted:   t("activity.actionLabels.Deleted"),
-    Published: t("activity.actionLabels.Published"),
-    LoggedIn:  t("activity.actionLabels.LoggedIn"),
+    Created:   "Created",
+    Updated:   "Updated",
+    Deleted:   "Deleted",
+    Published: "Published",
+    LoggedIn:  "Logged In",
   };
   return map[action] ?? action;
 }
 
 export default function ActivityPage() {
-  const { t } = useTranslation();
   const dt = useDataTable();
 
   const { data, isLoading } = useGetActivityListQuery({
@@ -32,54 +30,54 @@ export default function ActivityPage() {
   const { onExportCsv, onExportExcel } = useExport(
     "/api/admin/activity/export",
     { search: dt.queryParams.search },
-    "aktivite"
+    "activity"
   );
 
   const columns = useMemo(() => [
     {
       id: "userEmail",
-      header: t("activity.user"),
+      header: "User",
       accessorKey: "userEmail",
-      cell: ({ row }) => <span className="text-sm">{row.original.userEmail ?? "Sistem"}</span>,
+      cell: ({ row }) => <span className="text-sm">{row.original.userEmail ?? "System"}</span>,
     },
     {
       id: "action",
-      header: t("activity.action"),
+      header: "Action",
       accessorKey: "action",
       cell: ({ row }) => (
         <span className="text-xs bg-secondary text-secondary-foreground rounded px-1.5 py-0.5">
-          {getActionLabel(row.original.action, t)}
+          {getActionLabel(row.original.action)}
         </span>
       ),
     },
     {
       id: "entityType",
-      header: t("activity.entity"),
+      header: "Entity",
       accessorKey: "entityType",
       cell: ({ row }) => <span className="text-sm text-muted-foreground">{row.original.entityType}</span>,
     },
     {
       id: "ipAddress",
-      header: t("activity.ip"),
+      header: "IP",
       accessorKey: "ipAddress",
       enableSorting: false,
       cell: ({ row }) => <span className="text-xs font-mono text-muted-foreground">{row.original.ipAddress ?? "—"}</span>,
     },
     {
       id: "createdAt",
-      header: t("activity.date"),
+      header: "Date",
       accessorKey: "createdAt",
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(row.original.createdAt).toLocaleString("tr-TR")}
+          {new Date(row.original.createdAt).toLocaleString("en-US")}
         </span>
       ),
     },
-  ], [t]); // eslint-disable-line
+  ], []); // eslint-disable-line
 
   return (
     <>
-      <PanelHelmet title={t("activity.title")} />
+      <PanelHelmet title="Activity Log" />
       <DataTable
         columns={columns}
         data={data?.items ?? []}

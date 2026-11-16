@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import { Search, Trash2, ChevronLeft, ChevronRight, Users, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useGetSubscribersQuery, useDeleteSubscriberMutation } from "../features/subscribers/subscribersApi";
 
 export default function SubscribersPage() {
-  const { t } = useTranslation();
   const [search, setSearch]     = useState("");
   const [isActive, setIsActive] = useState(undefined);
   const [page, setPage]         = useState(1);
@@ -17,9 +15,9 @@ export default function SubscribersPage() {
   const confirm = useConfirm();
 
   async function handleDelete(id, email) {
-    if (!await confirm(`"${email}" ${t("subscribers.deleteConfirm")}`)) return;
+    if (!await confirm(`Are you sure you want to delete subscriber "${email}"?`)) return;
     await deleteSub(id);
-    toast.success(t("subscribers.deleted"));
+    toast.success("Subscriber deleted.");
   }
 
   const items       = data?.items ?? [];
@@ -33,9 +31,9 @@ export default function SubscribersPage() {
       <div className="p-6 flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">{t("subscribers.title")}</h1>
+            <h1 className="text-xl font-bold">Subscribers</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {total} {t("subscribers.totalActive").replace("·", `· ${activeCount}`)}
+              {total} {"total · active".replace("·", `· ${activeCount}`)}
             </p>
           </div>
         </div>
@@ -46,7 +44,7 @@ export default function SubscribersPage() {
             <input
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder={t("subscribers.searchPlaceholder")}
+              placeholder="Search by email or name…"
               className="w-full pl-8 pr-3 h-9 rounded-md border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -55,29 +53,29 @@ export default function SubscribersPage() {
             onChange={e => { setIsActive(e.target.value === "" ? undefined : e.target.value === "true"); setPage(1); }}
             className="h-9 pl-3 pr-8 rounded-md border bg-card text-sm focus:outline-none"
           >
-            <option value="">{t("subscribers.all")}</option>
-            <option value="true">{t("subscribers.active")}</option>
-            <option value="false">{t("subscribers.cancelled")}</option>
+            <option value="">All</option>
+            <option value="true">Active</option>
+            <option value="false">Cancelled</option>
           </select>
         </div>
 
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
           {isFetching ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">{t("subscribers.loading")}</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">Loading…</div>
           ) : items.length === 0 ? (
             <div className="py-16 flex flex-col items-center gap-3 text-muted-foreground">
               <Users size={36} className="opacity-20" />
-              <p className="text-sm">{t("subscribers.notFound")}</p>
+              <p className="text-sm">No subscribers found.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("subscribers.email")}</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("subscribers.name")}</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("subscribers.status")}</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("subscribers.subscribedAt")}</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("subscribers.unsubscribedAt")}</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Subscribed At</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Unsubscribed At</th>
                   <th className="px-4 py-3 w-12" />
                 </tr>
               </thead>
@@ -89,19 +87,19 @@ export default function SubscribersPage() {
                     <td className="px-4 py-3">
                       {sub.isActive ? (
                         <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
-                          <CheckCircle size={10} /> {t("subscribers.activeLabel")}
+                          <CheckCircle size={10} /> Active
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                          <XCircle size={10} /> {t("subscribers.cancelledLabel")}
+                          <XCircle size={10} /> Cancelled
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">
-                      {new Date(sub.subscribedAt).toLocaleDateString("tr")}
+                      {new Date(sub.subscribedAt).toLocaleDateString("en-US")}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">
-                      {sub.unsubscribedAt ? new Date(sub.unsubscribedAt).toLocaleDateString("tr") : "—"}
+                      {sub.unsubscribedAt ? new Date(sub.unsubscribedAt).toLocaleDateString("en-US") : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <button onClick={() => handleDelete(sub.id, sub.email)}

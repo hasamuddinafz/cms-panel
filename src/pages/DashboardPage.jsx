@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
   AreaChart,
   Area,
@@ -18,36 +17,35 @@ import {
   useGetRecentActivityQuery,
 } from "../features/dashboard/dashboardApi";
 
-function getActionLabel(action, t) {
+function getActionLabel(action) {
   const map = {
-    Created:   t("activity.actionLabels.Created"),
-    Updated:   t("activity.actionLabels.Updated"),
-    Deleted:   t("activity.actionLabels.Deleted"),
-    Published: t("activity.actionLabels.Published"),
-    LoggedIn:  t("activity.actionLabels.LoggedIn"),
+    Created:   "Created",
+    Updated:   "Updated",
+    Deleted:   "Deleted",
+    Published: "Published",
+    LoggedIn:  "Logged In",
   };
   return map[action] ?? action;
 }
 
 export default function DashboardPage() {
-  const { t } = useTranslation();
   const { data: stats }    = useGetDashboardStatsQuery();
   const { data: trend }    = useGetViewTrendQuery(30);
   const { data: topPages } = useGetTopPagesQuery(10);
   const { data: activity } = useGetRecentActivityQuery(15);
 
   const statCards = [
-    { label: t("dashboard.totalPages"),     value: stats?.totalPages,     icon: FileText,   color: "text-blue-500" },
-    { label: t("dashboard.publishedPages"), value: stats?.publishedPages, icon: TrendingUp, color: "text-green-500" },
-    { label: t("dashboard.totalViews"),     value: stats?.totalViews?.toLocaleString(), icon: Eye, color: "text-purple-500" },
-    { label: t("dashboard.todayViews"),     value: stats?.todayViews,     icon: Activity,   color: "text-orange-500" },
-    { label: t("dashboard.totalAssets"),    value: stats?.totalAssets,    icon: Image,      color: "text-pink-500" },
-    { label: t("dashboard.totalUsers"),     value: stats?.totalUsers,     icon: Users,      color: "text-cyan-500" },
+    { label: "Total Pages",     value: stats?.totalPages,     icon: FileText,   color: "text-blue-500" },
+    { label: "Published Pages", value: stats?.publishedPages, icon: TrendingUp, color: "text-green-500" },
+    { label: "Total Views",     value: stats?.totalViews?.toLocaleString(), icon: Eye, color: "text-purple-500" },
+    { label: "Today",     value: stats?.todayViews,     icon: Activity,   color: "text-orange-500" },
+    { label: "Media Files",    value: stats?.totalAssets,    icon: Image,      color: "text-pink-500" },
+    { label: "Users",     value: stats?.totalUsers,     icon: Users,      color: "text-cyan-500" },
   ];
 
   return (
     <>
-      <PanelHelmet title={t("dashboard.title")} />
+      <PanelHelmet title="Dashboard" />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
@@ -70,7 +68,7 @@ export default function DashboardPage() {
         {/* Trend chart — takes 2/3 */}
         <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle className="text-sm">{t("dashboard.last30Days")}</CardTitle>
+            <CardTitle className="text-sm">Last 30 Days — Daily Views</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
@@ -90,7 +88,7 @@ export default function DashboardPage() {
                 <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{ fontSize: 12 }}
-                  formatter={(v) => [v, t("dashboard.viewsLabel")]}
+                  formatter={(v) => [v, "Views"]}
                 />
                 <Area
                   type="monotone"
@@ -107,24 +105,24 @@ export default function DashboardPage() {
         {/* Recent activity — 1/3 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">{t("dashboard.recentActivities")}</CardTitle>
+            <CardTitle className="text-sm">Recent Activities</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <ul className="divide-y max-h-[240px] overflow-y-auto">
               {(activity ?? []).map((a) => (
                 <li key={a.id} className="px-4 py-2.5 space-y-0.5">
                   <p className="text-xs font-medium">
-                    {getActionLabel(a.action, t)}{" "}
+                    {getActionLabel(a.action)}{" "}
                     <span className="text-muted-foreground font-normal">— {a.entityType}</span>
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {a.userEmail ?? "Sistem"} · {new Date(a.createdAt).toLocaleString("tr-TR")}
+                    {a.userEmail ?? "System"} · {new Date(a.createdAt).toLocaleString("en-US")}
                   </p>
                 </li>
               ))}
               {!activity?.length && (
                 <li className="px-4 py-6 text-center text-xs text-muted-foreground">
-                  {t("dashboard.noActivity")}
+                  No activity yet.
                 </li>
               )}
             </ul>
@@ -135,16 +133,16 @@ export default function DashboardPage() {
       {/* Top pages table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">{t("dashboard.topViewedPages")}</CardTitle>
+          <CardTitle className="text-sm">Most Viewed Pages</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase">#</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase">{t("dashboard.slug")}</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase">{t("dashboard.model")}</th>
-                <th className="px-4 py-2.5 text-right text-xs font-semibold text-muted-foreground uppercase">{t("dashboard.views")}</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase">Slug</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase">Model</th>
+                <th className="px-4 py-2.5 text-right text-xs font-semibold text-muted-foreground uppercase">Views</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -168,7 +166,7 @@ export default function DashboardPage() {
               {!topPages?.length && (
                 <tr>
                   <td colSpan={4} className="py-8 text-center text-xs text-muted-foreground">
-                    {t("dashboard.noPublishedPages")}
+                    No published pages yet.
                   </td>
                 </tr>
               )}

@@ -10,9 +10,9 @@ import { arrayMove } from "@dnd-kit/sortable";
  *   value         – { [lang]: { [sectionKey]: { [fieldKey]: any } | [...] } }
  *   onChange      – (newValue) => void
  *   languages     – [{ code, name }]  (active languages)
- *   defaultLang   – string (e.g. "tr")
+ *   defaultLang   – string (e.g. "en")
  */
-export default function FormBuilder({ schema, value = {}, onChange, languages = [], defaultLang = "tr" }) {
+export default function FormBuilder({ schema, value = {}, onChange, languages = [], defaultLang = "en" }) {
   const [activeLang, setActiveLang] = useState(defaultLang);
 
   const patchField = useCallback(
@@ -156,7 +156,7 @@ function RepeaterSection({ section, value, onChange, lang }) {
               onClick={() => removeItem(idx)}
               className="text-destructive hover:text-destructive/80 text-xs"
             >
-              Sil
+              Delete
             </button>
           </div>
           {(section.fields ?? []).map((field) => (
@@ -176,7 +176,7 @@ function RepeaterSection({ section, value, onChange, lang }) {
           onClick={addItem}
           className="w-full py-2 border border-dashed rounded-lg text-sm text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
         >
-          + Yeni Öğe Ekle
+          + Add Item
         </button>
       )}
     </div>

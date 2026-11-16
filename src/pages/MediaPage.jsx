@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Trash2, Upload, Image, FileText, Film, File } from "lucide-react";
 import PanelHelmet from "../components/layout/PanelHelmet";
@@ -20,7 +19,6 @@ const TYPE_ICONS = { Image, Document: FileText, Video: Film };
 const FILE_TYPES = ["", "Image", "Document", "Video", "Other"];
 
 export default function MediaPage() {
-  const { t } = useTranslation();
   const dt          = useDataTable();
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -42,7 +40,7 @@ export default function MediaPage() {
   const { onExportCsv, onExportExcel } = useExport(
     "/api/admin/files/export",
     { search: dt.queryParams.search, fileType: dt.queryParams.filters.fileType },
-    "medya"
+    "media"
   );
 
   async function uploadSingleFile(file) {
@@ -50,9 +48,9 @@ export default function MediaPage() {
     fd.append("file", file);
     try {
       await uploadFile(fd).unwrap();
-      toast.success(t("mediaExtra.uploaded2"));
+      toast.success("File uploaded.");
     } catch {
-      toast.error(t("mediaExtra.uploadError"));
+      toast.error("Upload failed.");
     }
   }
 
@@ -87,12 +85,12 @@ export default function MediaPage() {
   }, [canUpload]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleDelete(id) {
-    if (!await confirm(t("confirm.deleteFile"))) return;
+    if (!await confirm("This file will be permanently deleted. Are you sure?")) return;
     try {
       await deleteFile(id).unwrap();
-      toast.success(t("mediaExtra.deleted"));
+      toast.success("Deleted.");
     } catch {
-      toast.error(t("mediaExtra.deleteError"));
+      toast.error("Delete failed.");
     }
   }
 
@@ -118,7 +116,7 @@ export default function MediaPage() {
       },
       {
         id: "fileName",
-        header: t("mediaExtra.fileName"),
+        header: "File Name",
         accessorKey: "fileName",
         cell: ({ row }) => (
           <span className="text-sm font-medium">{row.original.fileName}</span>
@@ -126,7 +124,7 @@ export default function MediaPage() {
       },
       {
         id: "fileType",
-        header: t("mediaExtra.fileType"),
+        header: "File Type",
         accessorKey: "fileType",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">{row.original.fileType}</span>
@@ -134,15 +132,15 @@ export default function MediaPage() {
       },
       {
         id: "sizeBytes",
-        header: t("mediaExtra.size"),
+        header: "Size",
         accessorKey: "sizeBytes",
         cell: ({ row }) => formatBytes(row.original.sizeBytes),
       },
       {
         id: "createdAt",
-        header: t("mediaExtra.uploaded"),
+        header: "Uploaded",
         accessorKey: "createdAt",
-        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("tr-TR"),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("en-US"),
       },
       {
         id: "actions",
@@ -162,7 +160,7 @@ export default function MediaPage() {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [canDelete, t]
+    [canDelete]
   );
 
   const filterSlot = (
@@ -172,14 +170,14 @@ export default function MediaPage() {
       onChange={(e) => dt.onFilterChange("fileType", e.target.value || undefined)}
     >
       {FILE_TYPES.map((ftype) => (
-        <option key={ftype} value={ftype}>{ftype || t("mediaExtra.allTypes")}</option>
+        <option key={ftype} value={ftype}>{ftype || "All Types"}</option>
       ))}
     </select>
   );
 
   return (
     <>
-      <PanelHelmet title={t("media.title")} />
+      <PanelHelmet title="Media Library" />
 
       {/* Drop zone wrapper */}
       <div
@@ -191,7 +189,7 @@ export default function MediaPage() {
         {isDragging && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 pointer-events-none">
             <Upload size={36} className="text-primary mb-2" />
-            <p className="text-sm font-semibold text-primary">{t("mediaExtra.dropToUpload", "Bırakın, yükleyin")}</p>
+            <p className="text-sm font-semibold text-primary">Drop to upload</p>
           </div>
         )}
 
@@ -206,7 +204,7 @@ export default function MediaPage() {
                 className="gap-1.5"
               >
                 <Upload size={14} />
-                {uploading ? t("mediaExtra.uploading") : t("mediaExtra.uploadFile")}
+                {uploading ? "Uploading…" : "Upload File"}
               </Button>
               <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} />
             </>

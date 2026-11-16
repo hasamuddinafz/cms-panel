@@ -9,7 +9,6 @@ import {
   Send, Plus, Trash2, AlignLeft, Users, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "../components/ui/ConfirmDialog";
 import {
   useSendMailMutation,
@@ -60,7 +59,6 @@ function Toolbar({ editor }) {
 
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function MailComposePage() {
-  const { t } = useTranslation();
   const [recipients, setRecipients] = useState([{ email: "", name: "" }]);
   const [subject, setSubject]       = useState("");
   const [sent, setSent]             = useState([]);
@@ -72,7 +70,7 @@ export default function MailComposePage() {
   const confirm = useConfirm();
 
   const editor = useEditor({
-    extensions: [StarterKit, Placeholder.configure({ placeholder: t("mail.mailBodyPlaceholder") })],
+    extensions: [StarterKit, Placeholder.configure({ placeholder: "Write your mail content here… HTML is supported." })],
     editorProps: { attributes: { class: "tiptap-editor focus:outline-none min-h-[260px] px-4 py-3" } },
   });
 
@@ -91,10 +89,10 @@ export default function MailComposePage() {
   const handleSend = useCallback(async (e) => {
     e.preventDefault();
     const valid = recipients.filter(r => r.email.trim());
-    if (!valid.length) { toast.error(t("mail.atLeastOne")); return; }
+    if (!valid.length) { toast.error("At least one recipient email is required."); return; }
     if (!editor) return;
     const htmlBody = editor.getHTML();
-    if (!htmlBody || htmlBody === "<p></p>") { toast.error(t("mail.bodyRequired")); return; }
+    if (!htmlBody || htmlBody === "<p></p>") { toast.error("Mail body cannot be empty."); return; }
 
     const results = await Promise.allSettled(
       valid.map(r => sendMail({ toEmail: r.email.trim(), toName: r.name.trim() || r.email.trim(), subject, htmlBody }))
@@ -103,28 +101,28 @@ export default function MailComposePage() {
     const failed    = results.length - succeeded;
     if (succeeded > 0) {
       setSent(prev => [{ to: valid.map(r => r.email).join(", "), subject, sentAt: new Date() }, ...prev]);
-      toast.success(`${succeeded} ${t("mail.sentCount")}`);
+      toast.success(`${succeeded} mail(s) sent.`);
       setRecipients([{ email: "", name: "" }]);
       setSubject("");
       editor.commands.clearContent();
     }
-    if (failed > 0) toast.error(`${failed} ${t("mail.failedCount")}`);
-  }, [recipients, subject, editor, sendMail, t]);
+    if (failed > 0) toast.error(`${failed} mail(s) failed.`);
+  }, [recipients, subject, editor, sendMail]);
 
   const handleSendBulk = useCallback(async () => {
     if (!editor) return;
     const htmlBody = editor.getHTML();
-    if (!htmlBody || htmlBody === "<p></p>") { toast.error(t("mail.bodyRequired")); return; }
-    if (!subject.trim()) { toast.error(t("mail.subjectRequired")); return; }
-    if (!await confirm(t("mail.bulkConfirm"), { title: t("mail.bulkTitle"), confirmLabel: t("mail.send") })) return;
+    if (!htmlBody || htmlBody === "<p></p>") { toast.error("Mail body cannot be empty."); return; }
+    if (!subject.trim()) { toast.error("Subject cannot be empty."); return; }
+    if (!await confirm("Mail will be sent to all active subscribers. Continue?", { title: "Bulk Send", confirmLabel: "Send" })) return;
     try {
       const res = await sendBulkMail({ subject, htmlBody }).unwrap();
-      toast.success(t("mail.bulkSent", { count: res.sent }));
-      setSent(prev => [{ to: `${res.sent} ${t("mail.subscriberCount")}`, subject, sentAt: new Date() }, ...prev]);
+      toast.success(`Mail sent to ${res.sent} subscriber(s).`);
+      setSent(prev => [{ to: `${res.sent} subscriber(s)`, subject, sentAt: new Date() }, ...prev]);
     } catch {
-      toast.error(t("mail.bulkError"));
+      toast.error("Bulk send failed.");
     }
-  }, [subject, editor, sendBulkMail, confirm, t]);
+  }, [subject, editor, sendBulkMail, confirm]);
 
   return (
     <>
@@ -132,7 +130,7 @@ export default function MailComposePage() {
 
       {/* Page title + actions */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold">{t("mail.title")}</h1>
+        <h1 className="text-xl font-bold">Send Mail</h1>
         <div className="flex items-center gap-2">
           {/* Template picker */}
           <div className="relative">
@@ -141,12 +139,12 @@ export default function MailComposePage() {
               onClick={() => setShowTemplates(v => !v)}
               className="flex items-center gap-1.5 h-9 px-3 rounded-md border text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
             >
-              <FileText size={14} /> {t("mail.loadTemplate")}
+              <FileText size={14} /> Load Template
             </button>
             {showTemplates && (
               <div className="absolute right-0 top-full mt-1 w-64 rounded-xl border bg-card shadow-lg z-20 overflow-hidden">
                 {!templatesData?.items?.length ? (
-                  <p className="px-4 py-3 text-xs text-muted-foreground">{t("mail.noTemplates")}</p>
+                  <p className="px-4 py-3 text-xs text-muted-foreground">No saved templates.</p>
                 ) : (
                   <ul className="divide-y divide-border max-h-60 overflow-y-auto">
                     {templatesData.items.map((tpl) => (
@@ -166,7 +164,7 @@ export default function MailComposePage() {
 
           <button type="button" disabled={bulkLoading} onClick={handleSendBulk}
             className="flex items-center gap-1.5 h-9 px-3 rounded-md border text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-60">
-            <Users size={14} /> {bulkLoading ? t("mail.sending") : t("mail.allSubscribers")}
+            <Users size={14} /> {bulkLoading ? "Sending…" : "All Subscribers"}
           </button>
         </div>
       </div>
@@ -177,10 +175,10 @@ export default function MailComposePage() {
           {/* Recipients */}
           <div className="px-5 py-4 border-b border-border space-y-2">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">{t("mail.recipients")}</span>
+              <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">Recipients</span>
               <button type="button" onClick={addRecipient}
                 className="flex items-center gap-1 text-xs text-primary hover:underline ml-auto">
-                <Plus size={11} /> {t("common.create")}
+                <Plus size={11} /> Create
               </button>
             </div>
             {recipients.map((rec, i) => (
@@ -189,13 +187,13 @@ export default function MailComposePage() {
                   type="email"
                   value={rec.email}
                   onChange={e => updateRecipient(i, "email", e.target.value)}
-                  placeholder={t("mail.recipientEmail")}
+                  placeholder="example@mail.com"
                   className="flex-1 h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 <input
                   value={rec.name}
                   onChange={e => updateRecipient(i, "name", e.target.value)}
-                  placeholder={t("mail.recipientName")}
+                  placeholder="Full Name (optional)"
                   className="w-52 h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 {recipients.length > 1 && (
@@ -210,12 +208,12 @@ export default function MailComposePage() {
 
           {/* Subject */}
           <div className="px-5 py-3 border-b border-border flex items-center gap-3">
-            <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">{t("mail.mailSubject")}</span>
+            <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">Subject</span>
             <input
               value={subject}
               onChange={e => setSubject(e.target.value)}
               required
-              placeholder={t("mail.subjectPlaceholder")}
+              placeholder="Email subject"
               className="flex-1 h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
@@ -231,7 +229,7 @@ export default function MailComposePage() {
             <button type="submit" disabled={isLoading}
               className="flex items-center gap-2 h-9 px-5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60">
               <Send size={14} />
-              {isLoading ? t("mail.sending") : t("mail.send")}
+              {isLoading ? "Sending…" : "Send"}
             </button>
           </div>
         </div>
@@ -239,7 +237,7 @@ export default function MailComposePage() {
         {/* Sent log */}
         {sent.length > 0 && (
           <div className="rounded-xl border border-border bg-card px-5 py-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">{t("mail.sentThisSession")}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">Sent This Session</p>
             <div className="space-y-1.5">
               {sent.map((s, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs">

@@ -3,6 +3,8 @@ import { X, Search, Upload } from "lucide-react";
 import { useGetFileListQuery, useUploadFileMutation } from "../../features/media/mediaApi";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { toast } from "sonner";
+import { getErrorMessage } from "../../lib/errors";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -23,8 +25,14 @@ export default function AssetPickerModal({ open, onClose, assetType, onSelect })
     if (!file) return;
     const fd = new FormData();
     fd.append("file", file);
-    const result = await uploadFile(fd).unwrap();
-    onSelect(result);
+    try {
+      const result = await uploadFile(fd).unwrap();
+      onSelect(result);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Upload failed."));
+    } finally {
+      e.target.value = "";
+    }
   }
 
   if (!open) return null;

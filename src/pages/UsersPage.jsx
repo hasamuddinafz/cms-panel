@@ -10,6 +10,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useGetUserListQuery, useCreateUserMutation, useAssignRolesMutation } from "../features/users/usersApi";
 import { useGetRoleListQuery } from "../features/roles/rolesApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function UsersPage() {
   const dt = useDataTable();
@@ -145,8 +146,8 @@ function AssignRolesModal({ userId, userEmail, onClose }) {
       await assignRoles({ userId, roleIds: [...selected] }).unwrap();
       toast.success("Roles updated.");
       onClose();
-    } catch {
-      toast.error("Update failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Update failed."));
     }
   }
 
@@ -203,7 +204,7 @@ function CreateUserModal({ onClose }) {
       toast.success("User created.");
       onClose();
     } catch (err) {
-      toast.error(err?.data?.error ?? "An error occurred.");
+      toast.error(getErrorMessage(err, "An error occurred."));
     }
   }
 

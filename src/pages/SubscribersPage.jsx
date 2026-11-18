@@ -4,6 +4,7 @@ import { useConfirm } from "../components/ui/ConfirmDialog";
 import { Search, Trash2, ChevronLeft, ChevronRight, Users, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useGetSubscribersQuery, useDeleteSubscriberMutation } from "../features/subscribers/subscribersApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function SubscribersPage() {
   const [search, setSearch]     = useState("");
@@ -16,7 +17,8 @@ export default function SubscribersPage() {
 
   async function handleDelete(id, email) {
     if (!await confirm(`Are you sure you want to delete subscriber "${email}"?`)) return;
-    await deleteSub(id);
+    const res = await deleteSub(id);
+    if (res.error) { toast.error(getErrorMessage(res.error, "Delete failed.")); return; }
     toast.success("Subscriber deleted.");
   }
 

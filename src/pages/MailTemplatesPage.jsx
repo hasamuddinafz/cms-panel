@@ -15,6 +15,7 @@ import {
   useDeleteMailTemplateMutation,
 } from "../features/mail/mailApi";
 import { usePermission } from "../app/usePermission";
+import { getErrorMessage } from "../lib/errors";
 
 export default function MailTemplatesPage() {
   const dt = useDataTable();
@@ -49,8 +50,8 @@ export default function MailTemplatesPage() {
         toast.success("Template created.");
       }
       setEditing(null);
-    } catch {
-      toast.error("An error occurred.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "An error occurred."));
     }
   }
 
@@ -59,8 +60,8 @@ export default function MailTemplatesPage() {
     try {
       await deleteTpl(id).unwrap();
       toast.success("Template deleted.");
-    } catch {
-      toast.error("Could not delete.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Could not delete."));
     }
   }
 

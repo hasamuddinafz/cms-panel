@@ -12,6 +12,7 @@ import {
   useUpdateLanguageMutation,
   useDeleteLanguageMutation,
 } from "../features/languages/languagesApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function LanguagesPage() {
   const { data: languages = [], isLoading } = useGetLanguagesQuery();
@@ -25,8 +26,8 @@ export default function LanguagesPage() {
     try {
       await deleteLanguage(id).unwrap();
       toast.success("Language deleted.");
-    } catch {
-      toast.error("Operation failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Operation failed."));
     }
   }
 
@@ -124,8 +125,8 @@ function LanguageModal({ mode, lang, onClose }) {
         toast.success("Language updated.");
       }
       onClose();
-    } catch {
-      toast.error("Operation failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Operation failed."));
     }
   }
 

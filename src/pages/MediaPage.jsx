@@ -13,6 +13,7 @@ import {
 } from "../features/media/mediaApi";
 import { usePermission } from "../app/usePermission";
 import { useConfirm } from "../components/ui/ConfirmDialog";
+import { getErrorMessage } from "../lib/errors";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const TYPE_ICONS = { Image, Document: FileText, Video: Film };
@@ -49,8 +50,8 @@ export default function MediaPage() {
     try {
       await uploadFile(fd).unwrap();
       toast.success("File uploaded.");
-    } catch {
-      toast.error("Upload failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Upload failed."));
     }
   }
 
@@ -89,8 +90,8 @@ export default function MediaPage() {
     try {
       await deleteFile(id).unwrap();
       toast.success("Deleted.");
-    } catch {
-      toast.error("Delete failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Delete failed."));
     }
   }
 

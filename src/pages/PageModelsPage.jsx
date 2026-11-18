@@ -8,6 +8,7 @@ import { useDataTable } from "../components/data-table/useDataTable";
 import { Button } from "../components/ui/button";
 import { useGetPageModelListQuery, useDeletePageModelMutation } from "../features/pageModels/pageModelsApi";
 import { useConfirm } from "../components/ui/ConfirmDialog";
+import { getErrorMessage } from "../lib/errors";
 
 export default function PageModelsPage() {
   const dt = useDataTable();
@@ -25,7 +26,7 @@ export default function PageModelsPage() {
   async function handleDelete(id) {
     if (!await confirm("This model will be deleted. Are you sure?")) return;
     try { await deleteModel(id).unwrap(); toast.success("Model deleted."); }
-    catch { toast.error("Delete failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Delete failed.")); }
   }
 
   const columns = useMemo(() => [

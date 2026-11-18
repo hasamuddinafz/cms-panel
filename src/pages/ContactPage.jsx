@@ -9,6 +9,7 @@ import {
   useReplyContactMutation,
   useDeleteContactMessageMutation,
 } from "../features/contact/contactApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function ContactPage() {
   const [search, setSearch]     = useState("");
@@ -32,7 +33,8 @@ export default function ContactPage() {
 
   async function handleDelete(id) {
     if (!await confirm("Are you sure you want to delete this message?")) return;
-    await deletMsg(id);
+    const res = await deletMsg(id);
+    if (res.error) { toast.error(getErrorMessage(res.error, "Delete failed.")); return; }
     if (selected?.id === id) setSelected(null);
     toast.success("Message deleted.");
   }
@@ -152,7 +154,7 @@ export default function ContactPage() {
           onClose={() => setReplyOpen(false)}
           onSend={async (body) => {
             const r = await reply({ id: selected.id, ...body });
-            if (r.error) { toast.error("Could not send mail."); return; }
+            if (r.error) { toast.error(getErrorMessage(r.error, "Could not send mail.")); return; }
             toast.success("Reply sent.");
             setReplyOpen(false);
           }}

@@ -26,6 +26,7 @@ import { useGetPageModelListQuery, useGetPageModelByIdQuery } from "../features/
 import { useGetLanguagesQuery } from "../features/languages/languagesApi";
 import { useGetSettingsQuery } from "../features/settings/settingsApi";
 import { useGetFileListQuery, useUploadFileMutation } from "../features/media/mediaApi";
+import { getErrorMessage } from "../lib/errors";
 
 /* ─────────────────────────────────────────────────────────────────
    Page Editor
@@ -90,17 +91,16 @@ export default function PageEditorPage() {
   const [publishPage,    { isLoading: publishing }] = usePublishPageMutation();
   const isBusy = creating || updating || publishing;
 
-  const siteBaseUrl = (() => {
-    try {
-      const g = appSettings?.general;
-      const parsed = typeof g === "string" ? JSON.parse(g) : g;
-      return parsed?.siteBaseUrl?.replace(/\/$/, "") ?? "";
-    } catch { return ""; }
-  })();
+  const siteBaseUrl = (appSettings?.general?.siteBaseUrl ?? "").trim().replace(/\/+$/, "");
 
   function handlePreview() {
-    if (!slug.trim()) return;
-    window.open(`${siteBaseUrl || window.location.origin}/${slug.trim()}`, "_blank", "noopener,noreferrer");
+    const path = slug.trim().replace(/^\/+/, "");
+    if (!path) return;
+    if (!siteBaseUrl) {
+      toast.error("Set the Site URL under Settings → General to use Preview.");
+      return;
+    }
+    window.open(`${siteBaseUrl}/${path}`, "_blank", "noopener,noreferrer");
   }
 
   async function save(andPublish = false) {
@@ -129,7 +129,7 @@ export default function PageEditorPage() {
       }
       navigate("/pages");
     } catch (err) {
-      toast.error(err?.data?.error ?? "An error occurred.");
+      toast.error(getErrorMessage(err, "An error occurred."));
     }
   }
 
@@ -558,8 +558,8 @@ function AssetField({ value, onChange }) {
       onChange(res.url);
       setOpen(false);
       toast.success("File uploaded.");
-    } catch {
-      toast.error("Upload failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Upload failed."));
     }
     e.target.value = "";
   }

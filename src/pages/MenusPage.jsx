@@ -7,6 +7,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useGetMenuListQuery, useGetMenuByKeyQuery, useUpsertMenuMutation } from "../features/menus/menusApi";
 import { useGetLanguagesQuery } from "../features/languages/languagesApi";
+import { getErrorMessage } from "../lib/errors";
 
 const MENU_LABELS = {
   "navbar-desktop": "Navbar — Desktop",
@@ -60,8 +61,8 @@ function MenuEditor({ menuKey }) {
       await upsert({ key: menuKey, items: currentItems }).unwrap();
       toast.success("Saved.");
       setItems(null);
-    } catch {
-      toast.error("Save failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Save failed."));
     }
   }
 

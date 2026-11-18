@@ -15,6 +15,7 @@ import {
 } from "../features/pages/pagesApi";
 import { usePermission } from "../app/usePermission";
 import { useConfirm } from "../components/ui/ConfirmDialog";
+import { getErrorMessage } from "../lib/errors";
 
 const STATUS_COLORS = {
   Draft:     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -60,7 +61,7 @@ export default function PagesPage() {
   async function handleDelete(id) {
     if (!await confirm("This content will be permanently deleted. Are you sure?")) return;
     try { await deleteInstance(id).unwrap(); toast.success("Deleted."); }
-    catch { toast.error("No records found."); }
+    catch (err) { toast.error(getErrorMessage(err, "Delete failed.")); }
   }
 
   const columns = useMemo(() => [
@@ -114,7 +115,7 @@ export default function PagesPage() {
               <Button variant="ghost" size="icon" title="Publish"
                 onClick={async () => {
                   try { await publishPage(id).unwrap(); toast.success("Published."); }
-                  catch { toast.error("No records found."); }
+                  catch (err) { toast.error(getErrorMessage(err, "Publish failed.")); }
                 }}>
                 <CheckCircle size={13} className="text-green-600" />
               </Button>
@@ -123,7 +124,7 @@ export default function PagesPage() {
               <Button variant="ghost" size="icon" title="Archive"
                 onClick={async () => {
                   try { await archivePage(id).unwrap(); toast.success("Archived."); }
-                  catch { toast.error("No records found."); }
+                  catch (err) { toast.error(getErrorMessage(err, "Archive failed.")); }
                 }}>
                 <Archive size={13} className="text-muted-foreground" />
               </Button>

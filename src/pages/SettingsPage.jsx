@@ -14,6 +14,7 @@ import {
   useUpdateLocalizationMutation,
   useUpdateThemeMutation,
 } from "../features/settings/settingsApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -66,7 +67,7 @@ function GeneralTab({ settings }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try { await update(form).unwrap(); toast.success("General settings saved."); }
-    catch { toast.error("Save failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Save failed.")); }
   }
 
   return (
@@ -124,7 +125,7 @@ function SeoTab({ settings }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try { await update(form).unwrap(); toast.success("SEO settings saved."); }
-    catch { toast.error("Save failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Save failed.")); }
   }
 
   return (
@@ -147,7 +148,7 @@ function SmtpTab({ settings }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try { await update(form).unwrap(); toast.success("SMTP settings saved."); }
-    catch { toast.error("Save failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Save failed.")); }
   }
 
   return (
@@ -187,7 +188,7 @@ function LocalizationTab({ settings }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try { await update(form).unwrap(); toast.success("Localization settings saved."); }
-    catch { toast.error("Save failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Save failed.")); }
   }
 
   return (
@@ -209,7 +210,7 @@ function ThemeTab({ settings }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try { await update(form).unwrap(); toast.success("Theme settings saved."); }
-    catch { toast.error("Save failed."); }
+    catch (err) { toast.error(getErrorMessage(err, "Save failed.")); }
   }
 
   return (

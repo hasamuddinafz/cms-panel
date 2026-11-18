@@ -17,6 +17,7 @@ import {
   useCreatePageModelMutation,
   useUpdatePageModelMutation,
 } from "../features/pageModels/pageModelsApi";
+import { getErrorMessage } from "../lib/errors";
 
 /* ─── Field type registry ─── */
 const FIELD_TYPES = [
@@ -133,7 +134,7 @@ export default function PageModelEditorPage() {
       }
       navigate("/page-models");
     } catch (err) {
-      toast.error(err?.data?.error ?? "An error occurred.");
+      toast.error(getErrorMessage(err, "An error occurred."));
     }
   }
 

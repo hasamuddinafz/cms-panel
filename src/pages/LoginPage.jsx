@@ -14,6 +14,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PasswordInput } from "../components/ui/password-input";
 import { Label } from "../components/ui/label";
+import { getErrorMessage } from "../lib/errors";
 
 const schema = z.object({
   email:    z.string().email(),
@@ -38,8 +39,8 @@ export default function LoginPage() {
       const result = await login(data).unwrap();
       dispatch(setCredentials(result));
       navigate(from, { replace: true });
-    } catch {
-      toast.error("Login failed. Invalid email or password.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Login failed. Invalid email or password."));
     }
   }
 

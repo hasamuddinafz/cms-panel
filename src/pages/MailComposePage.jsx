@@ -15,6 +15,7 @@ import {
   useSendBulkMailMutation,
   useGetMailTemplatesQuery,
 } from "../features/mail/mailApi";
+import { getErrorMessage } from "../lib/errors";
 
 /* ─── TipTap Toolbar ─────────────────────────────────────────── */
 function ToolbarBtn({ onClick, active, title, children }) {
@@ -106,7 +107,11 @@ export default function MailComposePage() {
       setSubject("");
       editor.commands.clearContent();
     }
-    if (failed > 0) toast.error(`${failed} mail(s) failed.`);
+    if (failed > 0) {
+      const firstErr = results.find(r => r.status === "rejected" || r.value?.error);
+      const reason   = getErrorMessage(firstErr?.reason ?? firstErr?.value?.error, "");
+      toast.error(`${failed} mail(s) failed.${reason ? ` ${reason}` : ""}`);
+    }
   }, [recipients, subject, editor, sendMail]);
 
   const handleSendBulk = useCallback(async () => {
@@ -119,8 +124,8 @@ export default function MailComposePage() {
       const res = await sendBulkMail({ subject, htmlBody }).unwrap();
       toast.success(`Mail sent to ${res.sent} subscriber(s).`);
       setSent(prev => [{ to: `${res.sent} subscriber(s)`, subject, sentAt: new Date() }, ...prev]);
-    } catch {
-      toast.error("Bulk send failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Bulk send failed."));
     }
   }, [subject, editor, sendBulkMail, confirm]);
 

@@ -16,6 +16,7 @@ import {
   useDeleteRoleMutation,
   useGetRoleByIdQuery,
 } from "../features/roles/rolesApi";
+import { getErrorMessage } from "../lib/errors";
 
 export default function RolesPage() {
   const dt = useDataTable();
@@ -36,8 +37,8 @@ export default function RolesPage() {
     try {
       await deleteRole(id).unwrap();
       toast.success("Role deleted.");
-    } catch {
-      toast.error("Delete failed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Delete failed."));
     }
   }
 
@@ -180,7 +181,7 @@ function RoleModal({ mode, roleId, onClose }) {
       }
       onClose();
     } catch (err) {
-      toast.error(err?.data ?? "An error occurred.");
+      toast.error(getErrorMessage(err, "An error occurred."));
     }
   }
 
